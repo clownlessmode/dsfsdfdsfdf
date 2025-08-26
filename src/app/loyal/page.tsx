@@ -1,53 +1,24 @@
-"use client";
-import { Button } from "@shared/ui/button";
+import { LoyalTelephoneForm } from "@features/loyal-telephone-form";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@shared/ui/tabs";
 
-import { NumberKeypad } from "@shared/ui/number-keyboard";
-import Image from "next/image";
-import Link from "next/link";
-import React, { useState } from "react";
-
-const LoyalCardPage = () => {
-  const [value, setValue] = useState("");
-
+const LoyalPage = () => {
   return (
-    <main className="flex flex-col justify-start p-20 h-full min-h-screen gap-10 items-center">
-      <Image
-        alt=""
-        src={"/burger.png"}
-        width={1080}
-        height={1920}
-        className="overflow-hidden object-cover h-full rounded-4xl"
-      />
-      <div className="flex flex-col gap-8 w-full">
-        <div className="flex flex-row justify-between w-full gap-2">
-          <Button size={"md"}>По номеру телефона</Button>
-          <Button size={"md"} variant={"secondary"} disabled>
-            По QR-Коду
-          </Button>
-        </div>
-        <NumberKeypad
-          placeholder="+7"
-          value={value}
-          onChange={setValue}
-          maxLength={11}
-        />
-        <div className="flex flex-row justify-between w-full gap-2">
-          <Link href={"/catalogue"}>
-            <Button
-              size={"md"}
-              variant={"secondary"}
-              className="text-6xl px-20"
-            >
-              Пропустить
-            </Button>
-          </Link>
-          <Button size={"md"} className="text-6xl px-20" disabled>
-            Войти{" "}
-          </Button>
-        </div>
-      </div>
+    <main className="flex flex-col min-h-screen p-8 gap-8">
+      <figure className="flex-1 flex items-center justify-center bg-muted text-muted-foreground font-black w-full rounded-xl">
+        Реклама
+      </figure>
+      <Tabs defaultValue="telephone">
+        <TabsList className="w-full">
+          <TabsTrigger value="telephone">По номеру телефона</TabsTrigger>
+          <TabsTrigger value="qr">По QR-Коду</TabsTrigger>
+        </TabsList>
+        <TabsContent value="telephone">
+          <LoyalTelephoneForm />
+        </TabsContent>
+        <TabsContent value="password">Change your password here.</TabsContent>
+      </Tabs>
     </main>
   );
 };
 
-export default LoyalCardPage;
+export default LoyalPage;
