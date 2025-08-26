@@ -10,4 +10,22 @@ body {
   overflow: hidden;
   height: 100%;
   touch-action: manipulation; /* важный штрих */
+
+  /* Firefox */
+  scrollbar-width: none;
+  /* IE и Edge */
+  -ms-overflow-style: none;
+}
+
+/* Убираем скроллбары визуально у всех элементов, сохраняя прокрутку */
+* {
+  /* Firefox */
+  scrollbar-width: none;
+  /* IE и старый Edge */
+  -ms-overflow-style: none;
+}
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }

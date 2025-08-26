@@ -13,10 +13,12 @@ import { getFileType } from "@shared/lib/get-file-type";
 
 type ReadyMap = Record<number, boolean>;
 type DurationMap = Record<number, number>;
-
-export const Advertisement = () => {
-  const { advertisements } = useAdvertisementsController();
-
+interface AdvertisementFullscreenProps {
+  advertisements: IAdvertisement[];
+}
+export const AdvertisementFullscreen = ({
+  advertisements,
+}: AdvertisementFullscreenProps) => {
   const ads = useMemo(() => advertisements ?? [], [advertisements]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -192,7 +194,6 @@ export const Advertisement = () => {
 
   return (
     <div className="overflow-hidden h-full absolute -z-1 inset-0 bg-black">
-      {/* Crossfade between slides */}
       <div className="w-full h-full relative">
         <AnimatePresence initial={false}>
           {currentAd && isFirstReady && (

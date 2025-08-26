@@ -108,7 +108,7 @@ const NumericKeyboard = forwardRef<HTMLInputElement, NumberKeypadProps>(
     const handleKeyPress = (key: string) => {
       if (!onChange) return;
       const newRaw = applyKeyToRaw(value, key, maxLen);
-      onChange({ target: { value: newRaw } } as any); // RHF happy now
+      onChange({ target: { value: newRaw } } as never); // RHF happy now
     };
 
     const keys = [
@@ -121,25 +121,26 @@ const NumericKeyboard = forwardRef<HTMLInputElement, NumberKeypadProps>(
     const display = formatPhoneDisplay(value, maxLen);
 
     return (
-      <div className={cn("flex flex-col gap-3 items-center", className)}>
+      <div className={cn("flex flex-col gap-6 items-center", className)}>
         <Input
           ref={ref}
           value={display}
-          placeholder={placeholder || "+7 (___) ___ __-__"}
+          placeholder={placeholder || "+7"}
           readOnly
           type="tel"
-          className="pointer-events-none"
+          className="pointer-events-none shadow-lg "
           {...props}
         />
 
-        <div className="grid grid-cols-3 gap-3 w-fit">
+        <div className="grid grid-cols-3 gap-3 w-fit bg-background p-10 rounded-[60px] shadow-lg">
           {keys.map((row, rowIndex) =>
             row.map((key, keyIndex) => (
               <Button
                 key={`${rowIndex}-${keyIndex}`}
                 onClick={() => handleKeyPress(key)}
                 type="button"
-                className="size-10"
+                size="pinpad"
+                className="bg-muted text-foreground"
               >
                 {key}
               </Button>

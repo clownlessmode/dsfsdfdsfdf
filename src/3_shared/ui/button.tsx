@@ -5,12 +5,12 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@shared/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center  justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+          "text-white bg-gradient-to-b from-rose-600 to-rose-800 shadow-[0px_1px_3px_0px_rgba(0,0,0,0.10)] shadow-[0px_6px_6px_0px_rgba(0,0,0,0.09)] shadow-[0px_13px_8px_0px_rgba(0,0,0,0.05)] shadow-[0px_23px_9px_0px_rgba(0,0,0,0.01)] shadow-[0px_36px_10px_0px_rgba(0,0,0,0.00)] inline-flex justify-center items-center",
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
@@ -24,8 +24,10 @@ const buttonVariants = cva(
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        lg: "h-[140px] rounded-full px-30! has-[>svg]:px-4  gap-2.5  text-7xl font-bold text-center items-center justify-center",
+        md: "h-[120px] rounded-full px-2! has-[>svg]:px-4  gap-2.5  text-5xl font-bold text-center items-center justify-center",
         icon: "size-9",
+        pinpad: "size-30! text-5xl font-bold rounded-full",
       },
     },
     defaultVariants: {
