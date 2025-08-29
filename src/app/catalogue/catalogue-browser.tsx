@@ -147,7 +147,7 @@ export const CatalogueBrowser = ({
           </div>
           <div
             ref={productsContainerRef}
-            className="col-span-4 columns-2 gap-8 flex-1 min-h-0 overflow-y-auto"
+            className="col-span-4 grid grid-cols-2 gap-8 flex-1 min-h-0 overflow-y-auto"
           >
             <AnimatePresence initial={false}>
               {filteredProducts?.map((product) => (
