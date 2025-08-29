@@ -3,7 +3,7 @@ import { IBM_Plex_Sans } from "next/font/google";
 import "./_styles/globals.css";
 import "./_styles/tailwind.css";
 
-import { QueryProvider } from "./_providers";
+import { QueryProvider, SplashProvider } from "./_providers";
 
 const geistSans = IBM_Plex_Sans({
   variable: "--font-geist-sans",
@@ -22,11 +22,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <QueryProvider>
-        <body
-          className={`${geistSans.className} antialiased min-h-screen h-full`}
-        >
-          {children}
-        </body>
+        <SplashProvider>
+          <body
+            className={`${geistSans.className} antialiased min-h-screen h-full`}
+          >
+            {children}
+          </body>
+        </SplashProvider>
       </QueryProvider>
     </html>
   );

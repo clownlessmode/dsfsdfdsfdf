@@ -1,14 +1,16 @@
-"use client";
-import { useAdvertisementsController } from "@entities/advertisement/api";
+import { mock as advertisementsMock } from "@entities/advertisement";
 import { AdvertisementCard } from "@entities/advertisement/ui/advertisement-card";
 import { LoyalTelephoneForm } from "@features/loyal-telephone-form";
-import { Button } from "@shared/ui/button";
-import { NumericKeyboard } from "@shared/ui/numeric-keyboard";
 
-const LoyalPage = () => {
-  const { advertisements } = useAdvertisementsController();
+const getAdvertisements = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return advertisementsMock;
+};
+
+const LoyalPage = async () => {
+  const advertisements = await getAdvertisements();
   return (
-    <main className="flex flex-col min-h-screen p-20 gap-8 bg-muted justify-between">
+    <main className="flex flex-col min-h-screen p-10 gap-8 bg-muted justify-between">
       <AdvertisementCard
         className="w-full h-[630px]"
         advertisements={advertisements ?? []}

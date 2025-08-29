@@ -7,4 +7,11 @@ export class ProductService {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return mock;
   }
+
+  static async getProduct(id: number) {
+    // const response = await fetch(`/api/products/${id}&`);
+    // return response.json();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return mock.find((product) => product.id === Number(id));
+  }
 }

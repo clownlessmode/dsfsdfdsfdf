@@ -19,7 +19,7 @@ const ReceivingMethod = () => {
   };
 
   return (
-    <main className="flex flex-col min-h-screen p-20 gap-8 bg-muted justify-center items-center">
+    <main className="flex flex-col min-h-screen p-10 gap-8 bg-muted justify-center items-center">
       <div className="w-[850px] px-14 py-10 bg-white rounded-[60px] shadow-xl inline-flex flex-col justify-start items-center gap-14">
         <div className="self-stretch text-center justify-start text-yellow-950 text-6xl font-bold font-['IBM_Plex_Sans']">
           Как хотите
