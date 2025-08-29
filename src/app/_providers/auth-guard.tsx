@@ -1,0 +1,29 @@
+"use client";
+
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useTerminalAuth } from "@entities/session/model/terminal-auth";
+
+interface Props {
+  children: React.ReactNode;
+}
+
+export function TerminalAuthGuard({ children }: Props) {
+  const authorized = useTerminalAuth((s) => s.authorized);
+  console.log(authorized);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If not authorized, always push to /init
+    if (!authorized && pathname !== "/init") {
+      router.replace("/init");
+    }
+    // If authorized and currently on /init, block access and go back or to root
+    if (authorized && pathname === "/init") {
+      router.replace("/");
+    }
+  }, [authorized, pathname, router]);
+
+  return children;
+}
