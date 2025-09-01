@@ -20,7 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html
+      lang="en"
+      className="h-full max-w-[1080px] overflow-hidden"
+      suppressHydrationWarning
+    >
       <QueryProvider>
         <SplashProvider>
           <body

@@ -34,7 +34,7 @@ export default function InitPage() {
   const authStore = useTerminalAuth();
 
   const onSubmit = async (data: LoginFormData) => {
-    const response = await fetch("http://10.1.16.135:3006/api/v2/auth/login", {
+    const response = await fetch("http://10.32.2.117:3006/api/v2/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
       headers: {

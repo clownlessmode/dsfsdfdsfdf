@@ -24,7 +24,7 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
   const { clearCart } = useCart();
   const [isIdleDialogOpen, setIsIdleDialogOpen] = useState(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const IDLE_TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
+  const IDLE_TIMEOUT_MS = 20 * 60 * 1000; // 2 minutes
   const lastActivityRef = useRef<number>(Date.now());
   const [now, setNow] = useState<number>(Date.now());
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

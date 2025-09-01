@@ -15,4 +15,7 @@ export interface CartStore {
   addProduct: (product: IProduct) => void;
   removeProduct: (product: IProduct) => void;
   clearCart: () => void;
+  getProductCount: (productId: number) => number;
+  getTotalPrice: () => number;
+  getTotalItems: () => number;
 }

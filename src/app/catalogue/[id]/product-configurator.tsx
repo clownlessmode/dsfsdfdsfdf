@@ -100,15 +100,21 @@ export const ProductConfigurator = ({ product }: Props) => {
         </h2>
         <Tabs className="w-full" defaultValue="settings">
           <TabsList className="w-full bg-white">
-            <TabsTrigger className="w-full" value="settings">
-              Настроить
-            </TabsTrigger>
-            <TabsTrigger className="w-full" value="ingredients">
-              Изменить состав
-            </TabsTrigger>
-            <TabsTrigger className="w-full" value="description">
-              Описание
-            </TabsTrigger>
+            {product?.types?.length && (
+              <TabsTrigger className="w-full" value="settings">
+                Настроить
+              </TabsTrigger>
+            )}
+            {product?.ingredients?.length && (
+              <TabsTrigger className="w-full" value="ingredients">
+                Изменить состав
+              </TabsTrigger>
+            )}
+            {product?.information?.description && (
+              <TabsTrigger className="w-full" value="description">
+                Описание
+              </TabsTrigger>
+            )}
           </TabsList>
           <TabsContent value="settings">
             <div className="flex flex-col gap-4">

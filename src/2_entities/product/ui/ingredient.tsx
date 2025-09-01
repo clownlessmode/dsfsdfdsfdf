@@ -23,10 +23,10 @@ export const Ingredient = ({
           src={ingredient.image}
           alt={ingredient.name}
           width={100}
-          className="rounded-[50px] w-full"
+          className="rounded-[50px] w-full h-[300px] object-cover"
           height={100}
         />
-        <h3 className="text-[40px] font-bold leading-none mt-4">
+        <h3 className="text-[40px] font-bold leading-none mt-4 max-w-[270px] text-center truncate">
           {ingredient.name}
         </h3>
         <p className="text-[25px] text-muted-foreground font-medium">
