@@ -26,13 +26,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <QueryProvider>
-        <SplashProvider>
-          <body
-            className={`${geistSans.className} antialiased min-h-screen h-full`}
-          >
-            <TerminalAuthGuard>{children}</TerminalAuthGuard>
-          </body>
-        </SplashProvider>
+        {/* <SplashProvider> */}
+        <body
+          className={`${geistSans.className} antialiased min-h-screen h-full`}
+        >
+          {/* <TerminalAuthGuard>{children}</TerminalAuthGuard> */}
+          {children}
+        </body>
+        {/* </SplashProvider> */}
       </QueryProvider>
     </html>
   );

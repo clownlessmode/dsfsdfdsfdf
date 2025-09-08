@@ -46,17 +46,17 @@
 :root {
   --radius: 0.65rem;
   --background: oklch(1 0 0);
-  --foreground: #572b10;
+  --foreground: #292929;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.637 0.237 25.331);
+  --primary: #e40046;
   --primary-foreground: oklch(0.971 0.013 17.38);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
+  --muted-foreground: #bfbfbf;
   --accent: oklch(0.967 0.001 286.375);
   --accent-foreground: oklch(0.21 0.006 285.885);
   --destructive: oklch(0.577 0.245 27.325);
@@ -119,4 +119,33 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Shimmer sweep animation */
+@keyframes shimmer-x {
+  0% {
+    left: -30%;
+  }
+  100% {
+    left: 130%;
+  }
+}
+
+@utility animate-shimmer {
+  animation: shimmer-x 2s linear infinite;
+}
+
+/* Subtle pulse scale */
+@keyframes pulse-soft-scale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@utility animate-pulse-soft {
+  animation: pulse-soft-scale 5s ease-in-out infinite;
 }
