@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans } from "next/font/google";
+import { IBM_Plex_Sans, Inter } from "next/font/google";
 import "./_styles/globals.css";
 import "./_styles/tailwind.css";
 
 import { QueryProvider, SplashProvider, TerminalAuthGuard } from "./_providers";
 
-const geistSans = IBM_Plex_Sans({
+const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 export const metadata: Metadata = {
@@ -28,7 +33,7 @@ export default function RootLayout({
       <QueryProvider>
         {/* <SplashProvider> */}
         <body
-          className={`${geistSans.className} antialiased min-h-screen h-full`}
+          className={`${ibmPlexSans.variable} ${inter.variable} antialiased min-h-screen h-full`}
         >
           {/* <TerminalAuthGuard>{children}</TerminalAuthGuard> */}
           {children}

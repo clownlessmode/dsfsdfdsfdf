@@ -76,8 +76,8 @@ export const Product = ({ product, isLoading = false }: IProps) => {
                   <path
                     d="M2 29L6.27046 27.0261C26.2615 17.7858 48.0218 13 70.0451 13H77"
                     stroke="#E40046"
-                    stroke-width="3"
-                    stroke-linecap="round"
+                    strokeWidth="3"
+                    strokeLinecap="round"
                   />
                 </svg>
               </div>
@@ -120,8 +120,8 @@ export const Product = ({ product, isLoading = false }: IProps) => {
                 <path
                   d="M2 29L6.27046 27.0261C26.2615 17.7858 48.0218 13 70.0451 13H77"
                   stroke="#E40046"
-                  stroke-width="3"
-                  stroke-linecap="round"
+                  strokeWidth="3"
+                  strokeLinecap="round"
                 />
               </svg>
             </div>

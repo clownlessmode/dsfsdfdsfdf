@@ -7,9 +7,10 @@ export interface IProduct {
   group: number[];
   subgroup: string[];
   types: IProductType[] | null;
-  ingredients: IProductIngredient[] | null;
+  extras: IProductExtras[] | null;
   information: IProductInformation | null;
   variant: "default" | "big";
+  color: string;
 }
 
 export interface IProductType {
@@ -18,7 +19,7 @@ export interface IProductType {
   price: number;
 }
 
-export interface IProductIngredient {
+export interface IProductExtras {
   id: number;
   name: string;
   description?: string;
@@ -34,4 +35,5 @@ export interface IProductInformation {
   proteins: number;
   carbohydrates: number;
   calories: number;
+  gramm: string;
 }
