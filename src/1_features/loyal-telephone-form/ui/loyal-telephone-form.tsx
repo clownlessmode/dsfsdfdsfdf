@@ -38,16 +38,12 @@ export const LoyalTelephoneForm = () => {
           )}
         />
         <div className="flex flex-row gap-10 w-full  max-w-[920px]">
-          <Button
-            size={"md"}
-            className="bg-white text-foreground shadow-xl flex-1 shrink min-w-0"
-          >
+          <Button className="bg-white text-foreground shadow-xl flex-1 shrink min-w-0">
             <Link href={"/receiving-method"} className="w-full">
               Пропустить
             </Link>
           </Button>
           <Button
-            size={"md"}
             className="flex-1 shrink min-w-0"
             disabled={!form.formState.isValid}
           >

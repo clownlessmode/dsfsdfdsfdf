@@ -1,11 +1,11 @@
 import React from "react";
-import { IProductIngredient } from "../config/types";
+import { IProductExtras } from "../config/types";
 import Image from "next/image";
 import { Button } from "@shared/ui/button";
 import { Minus, Plus } from "lucide-react";
 
 interface Props {
-  ingredient: IProductIngredient;
+  ingredient: IProductExtras;
   count?: number;
   onIncrement?: () => void;
   onDecrement?: () => void;

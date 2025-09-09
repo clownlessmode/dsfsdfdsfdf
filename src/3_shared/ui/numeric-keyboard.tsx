@@ -139,7 +139,6 @@ const NumericKeyboard = forwardRef<HTMLInputElement, NumberKeypadProps>(
                 key={`${rowIndex}-${keyIndex}`}
                 onClick={() => handleKeyPress(key)}
                 type="button"
-                size="pinpad"
                 className="bg-muted text-foreground"
               >
                 {key}

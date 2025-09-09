@@ -130,11 +130,10 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
               </DialogTitle>
             </DialogHeader>
             <div className="flex flex-row gap-6 justify-center items-center">
-              <Button size="md" className="!px-20" onClick={handleStay}>
+              <Button className="!px-20" onClick={handleStay}>
                 Да
               </Button>
               <Button
-                size="md"
                 variant="outline"
                 className="!px-20"
                 onClick={handleLeave}
