@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Skeleton } from "@shared/ui/skeleton";
 import { Button } from "@shared/ui/button";
 import { Plus } from "lucide-react";
-import { useCart } from "@entities/cart";
 import { cn } from "@shared/lib/utils";
 
 interface IProps {
@@ -36,8 +35,9 @@ export const Product = ({ product, isLoading = false }: IProps) => {
         <Link
           href={`/catalogue/${product.id}`}
           className={cn(
-            "col-span-2 row-span-2 w-full h-full grid grid-cols-[auto_1fr:auto] items-center gap-5 py-5 px-4 pb-0"
+            "col-span-2 row-span-2 w-full h-full grid  items-center gap-5 py-5 px-4 pb-0"
           )}
+          style={{ gridTemplateColumns: "auto 1fr auto" }}
         >
           <Image
             src={product.image}
