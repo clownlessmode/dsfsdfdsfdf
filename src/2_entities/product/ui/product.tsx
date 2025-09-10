@@ -35,9 +35,8 @@ export const Product = ({ product, isLoading = false }: IProps) => {
         <Link
           href={`/catalogue/${product.id}`}
           className={cn(
-            "col-span-2 row-span-2 w-full h-full grid  items-center gap-5 py-5 px-4 pb-0"
+            "col-span-2 row-span-2 w-full h-full grid grid-cols-1 items-center gap-5 py-5 px-4 pb-0"
           )}
-          style={{ gridTemplateColumns: "auto 1fr auto" }}
         >
           <Image
             src={product.image}
