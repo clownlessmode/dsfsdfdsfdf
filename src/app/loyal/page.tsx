@@ -2,8 +2,13 @@ import { mock as advertisementsMock } from "@entities/advertisement";
 import { AdvertisementCard } from "@entities/advertisement/ui/advertisement-card";
 import { LoyalTelephoneForm } from "@features/loyal-telephone-form";
 
+export const dynamic = "force-static";
+export const revalidate = 1800; // 30 minutes
+
 const getAdvertisements = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  if (process.env.NODE_ENV !== "production") {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
   return advertisementsMock;
 };
 

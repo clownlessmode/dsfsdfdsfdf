@@ -5,8 +5,13 @@ import { Logotype } from "@shared/ui/logotype";
 import Link from "next/link";
 import React from "react";
 
+export const dynamic = "force-static";
+export const revalidate = 1800; // 30 minutes
+
 const getAdvertisements = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  if (process.env.NODE_ENV !== "production") {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
   return advertisementsMock;
 };
 
