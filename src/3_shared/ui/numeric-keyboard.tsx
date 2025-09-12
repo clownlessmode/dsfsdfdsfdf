@@ -31,7 +31,7 @@ const normalizePhoneDigits = (
   raw: string,
   maxLen = DEFAULT_MAX_LEN
 ): string => {
-  const digits = (raw || "").replace(/\D/g, "");
+  const digits = String(raw || "").replace(/\D/g, "");
   if (!digits) return "";
   let out = digits;
 
@@ -46,7 +46,7 @@ const normalizePhoneDigits = (
 
 // Форматируем для отображения: +7 (999) 000 00-00 (частично по мере ввода)
 const formatPhoneDisplay = (raw: string, maxLen = DEFAULT_MAX_LEN): string => {
-  const normalized = normalizePhoneDigits(raw, maxLen);
+  const normalized = normalizePhoneDigits(String(raw || ""), maxLen);
   if (!normalized) return "";
   const rest = normalized.slice(1); // 10 оставшихся цифр
 
@@ -75,7 +75,7 @@ const applyKeyToRaw = (
   key: string,
   maxLen = DEFAULT_MAX_LEN
 ): string => {
-  const digitsOnly = (raw || "").replace(/\D/g, "");
+  const digitsOnly = String(raw || "").replace(/\D/g, "");
 
   if (key === "C") return "";
   if (key === "⌫") {
@@ -108,7 +108,7 @@ const NumericKeyboard = forwardRef<HTMLInputElement, NumberKeypadProps>(
     const handleKeyPress = (key: string) => {
       if (!onChange) return;
       const newRaw = applyKeyToRaw(value, key, maxLen);
-      onChange({ target: { value: newRaw } } as never); // RHF happy now
+      onChange(newRaw);
     };
 
     const keys = [
@@ -128,11 +128,11 @@ const NumericKeyboard = forwardRef<HTMLInputElement, NumberKeypadProps>(
           placeholder={placeholder || "+7"}
           readOnly
           type="tel"
-          className="pointer-events-none shadow-lg "
+          className="pointer-events-none bg-muted rounded-full"
           {...props}
         />
 
-        <div className="grid grid-cols-3 gap-3 w-fit bg-background p-10 rounded-[60px] shadow-lg">
+        <div className="grid grid-cols-3 gap-3 w-fit bg-background p-10 rounded-[60px] ">
           {keys.map((row, rowIndex) =>
             row.map((key, keyIndex) => (
               <Button

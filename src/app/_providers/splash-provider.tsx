@@ -10,13 +10,9 @@ import {
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@shared/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@shared/ui/dialog";
 import { useCart } from "@entities/cart/model/store";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
   const router = useRouter();
@@ -24,7 +20,7 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
   const { clearCart } = useCart();
   const [isIdleDialogOpen, setIsIdleDialogOpen] = useState(false);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const IDLE_TIMEOUT_MS = 20 * 60 * 1000; // 2 minutes
+  const IDLE_TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
   const lastActivityRef = useRef<number>(Date.now());
   const [now, setNow] = useState<number>(Date.now());
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -122,27 +118,96 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
         </div>
       )}
       {!disabled && (
-        <Dialog open={isIdleDialogOpen} onOpenChange={setIsIdleDialogOpen}>
-          <DialogContent className="w-[920px] !max-w-none rounded-[60px] h-fit">
-            <DialogHeader>
-              <DialogTitle className="text-5xl">
-                Продолжить собирать заказ?
-              </DialogTitle>
-            </DialogHeader>
-            <div className="flex flex-row gap-6 justify-center items-center">
-              <Button className="!px-20" onClick={handleStay}>
-                Да
-              </Button>
-              <Button
-                variant="outline"
-                className="!px-20"
-                onClick={handleLeave}
+        <AnimatePresence>
+          {isIdleDialogOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40"
+              onClick={() => setIsIdleDialogOpen(false)}
+            >
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  scale: 0.8,
+                  y: 50,
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  y: 0,
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.8,
+                  y: 50,
+                }}
+                transition={{
+                  type: "spring",
+                  damping: 25,
+                  stiffness: 300,
+                }}
+                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-[60px] z-50 p-6 text-center flex flex-col"
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: "60px",
+                  zIndex: 50,
+                  padding: "50px",
+                  width: "910px",
+                  margin: "0 1rem",
+                }}
+                onClick={(e) => e.stopPropagation()}
               >
-                Нет
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+                <motion.h2
+                  className="text-[72px] font-bold mb-4 text-center w-full leading-[72px] text-balance"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  Продолжить собирать заказ?
+                </motion.h2>
+
+                <motion.div
+                  className="flex flex-row gap-6 justify-center items-center mt-8"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Button
+                    // className="!px-20 text-[32px] h-[80px]"
+                    size={"lg"}
+                    className="w-full"
+                    onClick={handleStay}
+                  >
+                    Да
+                  </Button>
+                  <Button
+                    variant="outline"
+                    // className="!px-20 text-[32px] h-[80px]"
+                    size={"lg"}
+                    className="w-full"
+                    onClick={handleLeave}
+                  >
+                    Нет
+                  </Button>
+                </motion.div>
+
+                <motion.button
+                  className="absolute top-10 right-10 bg-muted rounded-full p-5 hover:bg-muted/80 transition-colors"
+                  onClick={() => setIsIdleDialogOpen(false)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <X className="size-[48px] text-foreground/80" />
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       )}
     </>
   );

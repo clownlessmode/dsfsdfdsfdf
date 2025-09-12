@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    minimumCacheTTL: 60 * 60 * 24, // 24h cache for optimized images
+    minimumCacheTTL: 60 * 60 * 24,
     remotePatterns: [
       {
         protocol: "https",
@@ -31,6 +31,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "source.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "826d0f1c-f5de-47aa-b1a1-a0190a1d5c7c.selstorage.ru",
       },
     ],
   },

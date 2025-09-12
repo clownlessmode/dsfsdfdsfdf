@@ -1,5 +1,4 @@
-import { mock as advertisementsMock } from "@entities/advertisement";
-import { AdvertisementCard } from "@entities/advertisement/ui/advertisement-card";
+import { AdvertisementCard } from "@entities/advertisement";
 import { LoyalTelephoneForm } from "@features/loyal-telephone-form";
 
 export const dynamic = "force-static";
@@ -9,7 +8,7 @@ const getAdvertisements = async () => {
   if (process.env.NODE_ENV !== "production") {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  return advertisementsMock;
+  return [];
 };
 
 const LoyalPage = async () => {

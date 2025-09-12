@@ -19,7 +19,7 @@ export const Category = ({ category, isActive, onClick }: IProps) => {
       onClick={onClick}
     >
       <Image
-        src={category.image}
+        src={category.image ?? null}
         alt="category"
         className="rounded-[10px] w-[100px] aspect-square object-cover"
         width={500}

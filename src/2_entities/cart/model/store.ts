@@ -1,54 +1,121 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { Cart, CartStore } from "../config";
-import { IProduct } from "@entities/product/config/types";
+import { Cart, CartStore, CartItem } from "../config";
 
 const useCartStore = create<CartStore>()(
   persist<CartStore>(
     (set): CartStore => ({
-      cart: { products: [] },
+      cart: { items: [] },
       setCart: (cart: Cart) => set({ cart }),
-      addProduct: (product: IProduct) =>
+      addCartItem: (item: CartItem) =>
         set((state) => ({
           cart: {
-            products: [...(state.cart?.products ?? []), product],
+            items: [...(state.cart?.items ?? []), item],
           },
         })),
-      removeProduct: (product: IProduct) =>
+      removeCartItem: (itemId: string) =>
         set((state) => {
-          const products = state.cart?.products ?? [];
-          const productIndex = products.findIndex((p) => p.id === product.id);
+          const items = state.cart?.items ?? [];
+          const itemIndex = items.findIndex((item) => {
+            const id = `${item.product.id}-${
+              item.selectedType?.id || "default"
+            }-${JSON.stringify(item.extras)}-${Array.from(
+              item.removedIngredients
+            )
+              .sort()
+              .join(",")}`;
+            return id === itemId;
+          });
 
-          if (productIndex === -1) return state;
+          if (itemIndex === -1) return state;
 
-          const newProducts = [...products];
-          newProducts.splice(productIndex, 1);
+          const newItems = [...items];
+          newItems.splice(itemIndex, 1);
 
           return {
             cart: {
-              products: newProducts,
+              items: newItems,
             },
           };
         }),
-      clearCart: () => set({ cart: { products: [] } }),
-      getProductCount: (productId: number) => {
-        const state = useCartStore.getState();
-        return (
-          state.cart?.products?.filter((p) => p.id === productId).length ?? 0
-        );
-      },
+      increaseCartItemQuantity: (itemId: string) =>
+        set((state) => {
+          const items = state.cart?.items ?? [];
+          const itemIndex = items.findIndex((item) => {
+            const id = `${item.product.id}-${
+              item.selectedType?.id || "default"
+            }-${JSON.stringify(item.extras)}-${Array.from(
+              item.removedIngredients
+            )
+              .sort()
+              .join(",")}`;
+            return id === itemId;
+          });
+
+          if (itemIndex === -1) return state;
+
+          const newItems = [...items];
+          const updatedItem = { ...newItems[itemIndex] };
+          updatedItem.quantity += 1;
+          updatedItem.totalPrice =
+            updatedItem.quantity * (updatedItem.selectedType?.price || 0);
+          newItems[itemIndex] = updatedItem;
+
+          return {
+            cart: {
+              items: newItems,
+            },
+          };
+        }),
+      decreaseCartItemQuantity: (itemId: string) =>
+        set((state) => {
+          const items = state.cart?.items ?? [];
+          const itemIndex = items.findIndex((item) => {
+            const id = `${item.product.id}-${
+              item.selectedType?.id || "default"
+            }-${JSON.stringify(item.extras)}-${Array.from(
+              item.removedIngredients
+            )
+              .sort()
+              .join(",")}`;
+            return id === itemId;
+          });
+
+          if (itemIndex === -1) return state;
+
+          const newItems = [...items];
+          const updatedItem = { ...newItems[itemIndex] };
+
+          // Если количество больше 1, уменьшаем на 1
+          if (updatedItem.quantity > 1) {
+            updatedItem.quantity -= 1;
+            updatedItem.totalPrice =
+              updatedItem.quantity * (updatedItem.selectedType?.price || 0);
+            newItems[itemIndex] = updatedItem;
+          } else {
+            // Если количество равно 1, удаляем товар полностью
+            newItems.splice(itemIndex, 1);
+          }
+
+          return {
+            cart: {
+              items: newItems,
+            },
+          };
+        }),
+      clearCart: () => set({ cart: { items: [] } }),
       getTotalPrice: () => {
         const state = useCartStore.getState();
         return (
-          state.cart?.products?.reduce(
-            (total, product) => total + product.price,
+          state.cart?.items?.reduce(
+            (total, item) => total + item.totalPrice,
             0
           ) ?? 0
         );
       },
       getTotalItems: () => {
         const state = useCartStore.getState();
-        return state.cart?.products?.length ?? 0;
+        return state.cart?.items?.length ?? 0;
       },
     }),
     {
@@ -60,19 +127,25 @@ const useCartStore = create<CartStore>()(
 export const useCart = () => {
   const cart = useCartStore((s) => s.cart);
   const setCart = useCartStore((s) => s.setCart);
-  const addProduct = useCartStore((s) => s.addProduct);
-  const removeProduct = useCartStore((s) => s.removeProduct);
+  const addCartItem = useCartStore((s) => s.addCartItem);
+  const removeCartItem = useCartStore((s) => s.removeCartItem);
+  const increaseCartItemQuantity = useCartStore(
+    (s) => s.increaseCartItemQuantity
+  );
+  const decreaseCartItemQuantity = useCartStore(
+    (s) => s.decreaseCartItemQuantity
+  );
   const clearCart = useCartStore((s) => s.clearCart);
-  const getProductCount = useCartStore((s) => s.getProductCount);
   const getTotalPrice = useCartStore((s) => s.getTotalPrice);
   const getTotalItems = useCartStore((s) => s.getTotalItems);
   return {
     cart,
     setCart,
-    addProduct,
-    removeProduct,
+    addCartItem,
+    removeCartItem,
+    increaseCartItemQuantity,
+    decreaseCartItemQuantity,
     clearCart,
-    getProductCount,
     getTotalPrice,
     getTotalItems,
   };

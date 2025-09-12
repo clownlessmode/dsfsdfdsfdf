@@ -38,6 +38,34 @@ export const AnimatedTabs = ({
 }: AnimatedTabsProps) => {
   if (!items || items.length <= 1) return null;
 
+  // Вычисляем максимальную ширину на основе содержимого
+  const calculateMaxWidth = () => {
+    const minWidth = itemWidth;
+    // Создаем временный элемент для измерения текста
+    const tempElement = document.createElement("div");
+    tempElement.style.position = "absolute";
+    tempElement.style.visibility = "hidden";
+    tempElement.style.whiteSpace = "nowrap";
+    tempElement.style.fontSize = "40px";
+    tempElement.style.fontWeight = "bold";
+    tempElement.style.padding = "0 40px";
+    document.body.appendChild(tempElement);
+
+    let maxTextWidth = 0;
+    items.forEach((item) => {
+      tempElement.textContent = item.name;
+      const textWidth = tempElement.offsetWidth;
+      maxTextWidth = Math.max(maxTextWidth, textWidth);
+    });
+
+    document.body.removeChild(tempElement);
+
+    // Возвращаем максимальную ширину между минимальной и шириной текста
+    return Math.max(minWidth, maxTextWidth);
+  };
+
+  const dynamicWidth = calculateMaxWidth();
+
   return (
     <div
       className={cn(
@@ -54,8 +82,8 @@ export const AnimatedTabs = ({
             animate={{
               x:
                 items.findIndex((item) => item.id === selectedId) *
-                (itemWidth + gap),
-              width: itemWidth,
+                (dynamicWidth + gap),
+              width: dynamicWidth,
             }}
             transition={{
               type: "spring",
@@ -81,7 +109,8 @@ export const AnimatedTabs = ({
           )}
           style={{
             color: selectedId === item.id ? activeTextColor : inactiveTextColor,
-            minWidth: itemWidth,
+            minWidth: dynamicWidth,
+            width: dynamicWidth,
             height: itemHeight,
           }}
           whileHover={{

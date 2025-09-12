@@ -1,5 +1,10 @@
 export interface IAdvertisement {
   id: number;
-  src: string;
-  duration: number | null;
+  url: string;
+  seconds: number | null;
+}
+
+export interface IAdvertisementResponse {
+  success: boolean;
+  data: IAdvertisement[];
 }

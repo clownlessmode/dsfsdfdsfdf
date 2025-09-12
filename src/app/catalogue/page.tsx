@@ -1,32 +1,44 @@
-import { mock as productsMock } from "@entities/product";
-import { mock as categoriesMock } from "@entities/category";
+import { ICategoryResponse } from "@entities/category";
 import React from "react";
 import CatalogueBrowser from "./catalogue-browser";
+import { IProduct } from "@entities/product";
 
 export const dynamic = "force-static";
 export const revalidate = 1800; // 30 minutes
 
-const getProducts = async () => {
-  if (process.env.NODE_ENV !== "production") {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+const getProducts = async (): Promise<IProduct[]> => {
+  try {
+    const response = await fetch(
+      "http://localhost:3006/api/foodcord/product-main",
+      {
+        credentials: "include",
+      }
+    );
+    return response.json();
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+    return [];
   }
-  return productsMock;
 };
 
-const getCategories = async () => {
-  if (process.env.NODE_ENV !== "production") {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+const getCategories = async (): Promise<ICategoryResponse> => {
+  try {
+    const response = await fetch("http://localhost:3006/api/foodcord/groups", {
+      credentials: "include",
+    });
+    return response.json();
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+    return { data: [], success: false };
   }
-  return categoriesMock;
 };
-
-// Advertisements are currently unused on catalogue page
 
 const CataloguePage = async () => {
   const [categories, products] = await Promise.all([
     getCategories(),
     getProducts(),
   ]);
-  return <CatalogueBrowser categories={categories} products={products} />;
+
+  return <CatalogueBrowser categories={categories.data} products={products} />;
 };
 export default CataloguePage;

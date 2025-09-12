@@ -17,6 +17,7 @@ const CatalogueBrowser = ({
   products: IProduct[];
 }) => {
   const { cart } = useCart();
+
   const {
     selectedCategory,
     scrollContainerRef,
@@ -28,9 +29,9 @@ const CatalogueBrowser = ({
     const map = new Map<number, IProduct[]>();
     categories.forEach((c) => map.set(c.id, []));
     products.forEach((product) => {
-      product.group.forEach((groupId) => {
-        if (!map.has(groupId)) map.set(groupId, []);
-        map.get(groupId)!.push(product);
+      product.groups.forEach((group) => {
+        if (!map.has(group.id)) map.set(group.id, []);
+        map.get(group.id)!.push(product);
       });
     });
     return map;
@@ -80,7 +81,7 @@ const CatalogueBrowser = ({
             </div>
           </section>
         </div>
-        {cart?.products?.length && cart?.products?.length > 0 ? (
+        {cart?.items?.length && cart?.items?.length > 0 ? (
           <div className="flex flex-row justify-between gap-2.5 bg-white rounded-[30px] px-[18px] py-[7px]">
             <CartRow />
             <CartButton />

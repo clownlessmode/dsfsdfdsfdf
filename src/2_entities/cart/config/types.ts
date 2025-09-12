@@ -1,7 +1,16 @@
-import { IProduct } from "@entities/product/config/types";
+import { IProduct, IProductType } from "@entities/product/config/types";
+
+export interface CartItem {
+  product: IProduct;
+  selectedType: IProductType | null;
+  quantity: number;
+  extras: Record<number, number>; // ingredientId -> quantity
+  removedIngredients: Set<number>; // ingredientId set
+  totalPrice: number;
+}
 
 export interface Cart {
-  products: IProduct[];
+  items: CartItem[];
 }
 
 export enum ReceivingMethod {
@@ -12,10 +21,11 @@ export enum ReceivingMethod {
 export interface CartStore {
   cart: Cart | null;
   setCart: (cart: Cart) => void;
-  addProduct: (product: IProduct) => void;
-  removeProduct: (product: IProduct) => void;
+  addCartItem: (item: CartItem) => void;
+  removeCartItem: (itemId: string) => void;
+  increaseCartItemQuantity: (itemId: string) => void;
+  decreaseCartItemQuantity: (itemId: string) => void;
   clearCart: () => void;
-  getProductCount: (productId: number) => number;
   getTotalPrice: () => number;
   getTotalItems: () => number;
 }

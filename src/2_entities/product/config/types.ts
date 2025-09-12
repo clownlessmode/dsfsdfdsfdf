@@ -2,29 +2,35 @@ export interface IProduct {
   id: number;
   name: string;
   image: string;
-  price: number;
+  variant: "default" | "big";
+  color: string | null;
   oldPrice: number | null;
-  group: number[];
+  groups: IProductGroup[];
   subgroup: string[];
-  types: IProductType[] | null;
+  type: IProductType[] | null;
   extras: IProductExtras[] | null;
   information: IProductInformation | null;
-  variant: "default" | "big";
-  color: string;
+  ingredients: string[];
+}
+
+export interface IProductGroup {
+  id: number;
+  name: string;
 }
 
 export interface IProductType {
   id: number;
   name: string;
   price: number;
+  weight: number | null;
 }
 
 export interface IProductExtras {
   id: number;
-  name: string;
-  description?: string;
-  price?: number;
+  name: string | null;
+  price: number;
   image: string;
+  description: string;
 }
 
 export interface IProductInformation {

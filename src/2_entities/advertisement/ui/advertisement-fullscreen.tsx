@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Skeleton } from "@shared/ui/skeleton";
 import NextImage from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAdvertisementsController } from "../api";
+
 import {
   DEFAULT_IMAGE_DURATION_SEC,
   DEFAULT_VIDEO_DURATION_SEC,
@@ -53,16 +54,16 @@ export const AdvertisementFullscreen = ({
 
   const preloadImage = (ad: IAdvertisement) => {
     const img = new window.Image();
-    img.src = ad.src;
+    img.src = ad.url;
     img.decoding = "async";
     img.onload = () => {
-      const duration = ad.duration ?? DEFAULT_IMAGE_DURATION_SEC;
+      const duration = ad.seconds ?? DEFAULT_IMAGE_DURATION_SEC;
       setDurationIfMissing(ad.id, duration);
       markReady(ad.id);
     };
     img.onerror = () => {
       // on error still mark as ready to avoid deadlock
-      const duration = ad.duration ?? DEFAULT_IMAGE_DURATION_SEC;
+      const duration = ad.seconds ?? DEFAULT_IMAGE_DURATION_SEC;
       setDurationIfMissing(ad.id, duration);
       markReady(ad.id);
     };
@@ -70,7 +71,7 @@ export const AdvertisementFullscreen = ({
 
   const preloadVideo = (ad: IAdvertisement) => {
     const video = document.createElement("video");
-    video.src = ad.src;
+    video.src = ad.url;
     video.preload = "auto";
     video.muted = true;
     video.playsInline = true;
@@ -79,7 +80,7 @@ export const AdvertisementFullscreen = ({
         isFinite(video.duration) && video.duration > 0
           ? video.duration
           : DEFAULT_VIDEO_DURATION_SEC;
-      const duration = ad.duration ?? metaDuration;
+      const duration = ad.seconds ?? metaDuration;
       setDurationIfMissing(ad.id, duration);
     };
     const onCanPlayThrough = () => {
@@ -87,7 +88,7 @@ export const AdvertisementFullscreen = ({
       cleanup();
     };
     const onError = () => {
-      const duration = ad.duration ?? DEFAULT_VIDEO_DURATION_SEC;
+      const duration = ad.seconds ?? DEFAULT_VIDEO_DURATION_SEC;
       setDurationIfMissing(ad.id, duration);
       markReady(ad.id);
       cleanup();
@@ -107,7 +108,7 @@ export const AdvertisementFullscreen = ({
   const ensurePreload = (ad?: IAdvertisement) => {
     if (!ad) return;
     if (readyMap[ad.id]) return;
-    const type = getFileType(ad.src);
+    const type = getFileType(ad.url);
     if (type === "image") preloadImage(ad);
     else preloadVideo(ad);
   };
@@ -124,14 +125,12 @@ export const AdvertisementFullscreen = ({
       ads.slice(2).forEach((ad) => ensurePreload(ad));
     }, 100);
     return () => clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ads.length]);
 
   // Always ensure current and next are preloaded
   useEffect(() => {
     ensurePreload(currentAd);
     ensurePreload(nextAd);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentAd?.id, nextAd?.id]);
 
   // Handle advancing slides with precise durations
@@ -141,8 +140,8 @@ export const AdvertisementFullscreen = ({
 
     const durationSec =
       durationMap[currentAd.id] ??
-      currentAd.duration ??
-      (getFileType(currentAd.src) === "video"
+      currentAd.seconds ??
+      (getFileType(currentAd.url) === "video"
         ? DEFAULT_VIDEO_DURATION_SEC
         : DEFAULT_IMAGE_DURATION_SEC);
 
@@ -169,7 +168,6 @@ export const AdvertisementFullscreen = ({
         timerRef.current = null;
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentAd?.id,
     readyMap[currentAd?.id ?? -1],
@@ -205,9 +203,9 @@ export const AdvertisementFullscreen = ({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {getFileType(currentAd.src) === "image" ? (
+              {getFileType(currentAd.url) === "image" ? (
                 <NextImage
-                  src={currentAd.src}
+                  src={currentAd.url}
                   alt="advertisement"
                   width={1080}
                   height={1920}
@@ -217,7 +215,7 @@ export const AdvertisementFullscreen = ({
               ) : (
                 <video
                   key={currentAd.id}
-                  src={currentAd.src}
+                  src={currentAd.url}
                   className="w-full h-full object-cover"
                   autoPlay
                   muted
@@ -233,9 +231,9 @@ export const AdvertisementFullscreen = ({
         {/* Keep next slide mounted invisibly when ready to ensure instant switch */}
         {nextAd && readyMap[nextAd.id] && (
           <div className="absolute inset-0 opacity-0 pointer-events-none">
-            {getFileType(nextAd.src) === "image" ? (
+            {getFileType(nextAd.url) === "image" ? (
               <NextImage
-                src={nextAd.src}
+                src={nextAd.url}
                 alt="advertisement-next"
                 width={1080}
                 height={1920}
@@ -244,7 +242,7 @@ export const AdvertisementFullscreen = ({
             ) : (
               <video
                 key={nextAd.id}
-                src={nextAd.src}
+                src={nextAd.url}
                 className="w-full h-full object-cover"
                 muted
                 playsInline

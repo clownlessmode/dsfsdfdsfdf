@@ -19,16 +19,29 @@ export const MakeSweet = ({
   product,
   isOpen,
   setIsOpen,
+  extrasCount,
+  setExtrasCount,
+  removedIngredients,
+  setRemovedIngredients,
+  totalPrice,
+  onAddToCart,
 }: {
   product: IProduct;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  extrasCount: Record<number, number>;
+  setExtrasCount: (
+    count:
+      | Record<number, number>
+      | ((prev: Record<number, number>) => Record<number, number>)
+  ) => void;
+  removedIngredients: Set<number>;
+  setRemovedIngredients: (
+    ingredients: Set<number> | ((prev: Set<number>) => Set<number>)
+  ) => void;
+  totalPrice: number;
+  onAddToCart: () => void;
 }) => {
-  const [removedIngredientIdSet, setRemovedIngredientIdSet] = React.useState<
-    Set<number>
-  >(() => new Set());
-  const [ingredientQuantitiesById, setIngredientQuantitiesById] =
-    React.useState<Record<number, number>>({});
   const [isRendered, setIsRendered] = React.useState(false);
 
   React.useEffect(() => {
@@ -80,7 +93,7 @@ export const MakeSweet = ({
   } as const;
 
   const toggleRemoved = (id: number) => {
-    setRemovedIngredientIdSet((prev) => {
+    setRemovedIngredients((prev: Set<number>) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
@@ -89,14 +102,14 @@ export const MakeSweet = ({
   };
 
   const incrementQuantity = (id: number) => {
-    setIngredientQuantitiesById((prev) => ({
+    setExtrasCount((prev: Record<number, number>) => ({
       ...prev,
       [id]: (prev[id] ?? 0) + 1,
     }));
   };
 
   const decrementQuantity = (id: number) => {
-    setIngredientQuantitiesById((prev) => {
+    setExtrasCount((prev: Record<number, number>) => {
       const current = prev[id] ?? 0;
       const next = Math.max(0, current - 1);
       const updated = { ...prev, [id]: next };
@@ -105,10 +118,9 @@ export const MakeSweet = ({
   };
 
   const handleCardClick = (id: number) => {
-    setIngredientQuantitiesById((prev) => {
+    setExtrasCount((prev: Record<number, number>) => {
       const current = prev[id] ?? 0;
-      if (current > 0) return prev;
-      return { ...prev, [id]: 1 };
+      return { ...prev, [id]: current + 1 };
     });
   };
 
@@ -140,9 +152,9 @@ export const MakeSweet = ({
                 {product.extras?.slice(0, 2).map((ingredient) => (
                   <Image
                     key={ingredient.id}
-                    src={ingredient.image}
-                    alt={ingredient.name}
-                    className="rounded-[10px] w-[70px] aspect-square object-cover "
+                    src={ingredient.image ?? null}
+                    alt={ingredient.name ?? ""}
+                    className="w-[70px] aspect-square object-cover"
                     width={500}
                     height={500}
                   />
@@ -206,7 +218,7 @@ export const MakeSweet = ({
                     variants={sectionVariants}
                   >
                     {product.extras?.map((ingredient) => {
-                      const qty = ingredientQuantitiesById[ingredient.id] ?? 0;
+                      const qty = extrasCount[ingredient.id] ?? 0;
                       const selected = qty > 0;
                       return (
                         <motion.div
@@ -222,7 +234,7 @@ export const MakeSweet = ({
                           <div className="flex flex-col gap-1">
                             <Image
                               src={ingredient.image}
-                              alt={ingredient.name}
+                              alt={ingredient.name ?? ""}
                               width={100}
                               height={100}
                               className="rounded-[50px] w-full  object-cover"
@@ -293,20 +305,20 @@ export const MakeSweet = ({
                     className="flex flex-row flex-wrap gap-4"
                     variants={sectionVariants}
                   >
-                    {product.extras?.map((ingredient) => {
-                      const removed = removedIngredientIdSet.has(ingredient.id);
+                    {product.ingredients?.map((ingredient, index) => {
+                      const removed = removedIngredients.has(index);
                       return (
                         <motion.button
-                          key={ingredient.id}
+                          key={index}
                           variants={itemVariants}
-                          onClick={() => toggleRemoved(ingredient.id)}
+                          onClick={() => toggleRemoved(index)}
                           className={`bg-black/10 backdrop-blur-xl flex items-center rounded-[50px] py-[20px] px-[60px] gap-2 text-white text-[36px] font-semibold tracking-tighter transition-opacity ${
                             removed ? "opacity-50" : "opacity-100"
                           }`}
                           whileTap={{ scale: 0.97 }}
                         >
                           <span className={`${removed ? "line-through" : ""}`}>
-                            {ingredient.name}
+                            {ingredient}
                           </span>
                           <X className="size-[36px] -mb-1" />
                         </motion.button>
@@ -326,7 +338,9 @@ export const MakeSweet = ({
 
                   <div className="flex flex-row gap-5">
                     <InfoModal product={product} />
-                    <Button size={"lg"}>+{product?.price} ₽</Button>
+                    <Button size={"lg"} onClick={onAddToCart}>
+                      +{totalPrice} ₽
+                    </Button>
                   </div>
                 </div>
               </motion.div>

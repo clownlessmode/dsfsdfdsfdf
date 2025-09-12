@@ -17,10 +17,7 @@ export const CartButton = () => {
         color="#E40046"
         strokeWidth={2}
       />
-      {cart?.products
-        .reduce((acc, product) => acc + product.price, 0)
-        .toFixed(2)}
-      ₽
+      {cart?.items.reduce((acc, item) => acc + item.totalPrice, 0).toFixed(2)}₽
     </Button>
   );
 };

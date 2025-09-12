@@ -3,11 +3,13 @@
 import { useForm } from "react-hook-form";
 import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
+import { Label } from "@shared/ui/label";
 import { useVirtualKeyboard } from "@shared/ui/keyboard-input";
 import { useState } from "react";
 import VirtualKeyboard from "@shared/ui/virtual-keyboard";
 import { useRouter } from "next/navigation";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
+import { Logotype } from "@shared/ui/logotype";
 
 interface LoginFormData {
   email: string;
@@ -34,19 +36,19 @@ export default function InitPage() {
   const authStore = useTerminalAuth();
 
   const onSubmit = async (data: LoginFormData) => {
-    const response = await new Promise((resolve) => setTimeout(resolve, 2000));
-    //fetch("http://10.32.2.117:3006/api/v2/auth/login", {
-    //   method: "POST",
-    //   body: JSON.stringify(data),
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    // });
-    const responseData = await { auth: true };
-    console.log(responseData);
+    const response = await fetch(
+      "http://localhost:3006/api/foodcord/auth/login",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const responseData = await response.json();
 
     if (responseData.auth === true) {
-      alert("Авторизация прошла успешно");
       authStore.authorize();
       router.push("/");
     } else {
@@ -56,28 +58,53 @@ export default function InitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted flex items-center justify-center p-4">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <Input
-          id="login"
-          {...form.register("email")}
-          placeholder="Введите логин"
-          onFocus={() => setActiveField("email")}
-          className="cursor-pointer shadow-2xl"
-          readOnly
-        />
+    <div className="relative min-h-screen flex flex-col items-center px-6 pt-10 pb-[520px] bg-foreground">
+      <div className="w-full flex flex-col items-center gap-6 mb-8">
+        <Logotype className="w-[520px] h-auto drop-shadow" />
+        <div className="text-center">
+          <h1 className="text-7xl font-extrabold tracking-tight">
+            Вход в терминал
+          </h1>
+          <p className="text-3xl text-muted-foreground mt-2">
+            Авторизуйтесь для продолжения
+          </p>
+        </div>
+      </div>
 
-        <Input
-          id="password"
-          type="password"
-          {...form.register("password")}
-          placeholder="Введите пароль"
-          onFocus={() => setActiveField("password")}
-          className="cursor-pointer shadow-2xl"
-          readOnly
-        />
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full max-w-[960px] rounded-[60px] border bg-card/80 backdrop-blur-md px-12 py-14 grid gap-10"
+      >
+        <div className="grid gap-4">
+          <Label htmlFor="login" className="text-4xl font-bold">
+            Логин
+          </Label>
+          <Input
+            id="login"
+            {...form.register("email")}
+            placeholder="Введите логин"
+            onFocus={() => setActiveField("email")}
+            className="cursor-pointer"
+            readOnly
+          />
+        </div>
 
-        <Button type="submit" size="lg" className="w-full">
+        <div className="grid gap-4">
+          <Label htmlFor="password" className="text-4xl font-bold">
+            Пароль
+          </Label>
+          <Input
+            id="password"
+            type="password"
+            {...form.register("password")}
+            placeholder="Введите пароль"
+            onFocus={() => setActiveField("password")}
+            className="cursor-pointer"
+            readOnly
+          />
+        </div>
+
+        <Button type="submit" size="lg" className="w-full rounded-[60px]">
           Войти
         </Button>
       </form>
@@ -85,6 +112,7 @@ export default function InitPage() {
       <VirtualKeyboard
         onKeyPress={keyboard.handleKeyPress}
         onBackspace={keyboard.handleBackspace}
+        onEnter={() => form.handleSubmit(onSubmit)()}
         onSpace={keyboard.handleSpace}
       />
     </div>

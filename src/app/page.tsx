@@ -1,4 +1,3 @@
-import { mock as advertisementsMock } from "@entities/advertisement";
 import { AdvertisementFullscreen } from "@entities/advertisement/ui/advertisement-fullscreen";
 import CtaButton from "@shared/ui/cta-button";
 import { Logotype } from "@shared/ui/logotype";
@@ -9,18 +8,26 @@ export const dynamic = "force-static";
 export const revalidate = 1800; // 30 minutes
 
 const getAdvertisements = async () => {
-  if (process.env.NODE_ENV !== "production") {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  try {
+    const response = await fetch(
+      "http://localhost:3006/api/foodcord/banner-main",
+      { credentials: "include" }
+    );
+
+    return response.json();
+  } catch (error) {
+    console.error("Failed to fetch advertisements:", error);
+    return { data: [], success: false };
   }
-  return advertisementsMock;
 };
 
 const SplashPage = async () => {
   const advertisements = await getAdvertisements();
+
   return (
     <Link href={"/catalogue"} className="w-screen h-screen flex relative">
       <div className="bg-gradient-to-b from-white/0 to-white absolute inset-0 top-1/2 z-10" />
-      <AdvertisementFullscreen advertisements={advertisements ?? []} />
+      <AdvertisementFullscreen advertisements={advertisements.data} />
       <Logotype className="absolute top-10 left-10" />
       <p className="text-black opacity-50 text-5xl font-medium absolute bottom-[385px] text-center left-1/2 -translate-x-1/2 z-20">
         нажмите на кнопку, чтобы сделать заказ

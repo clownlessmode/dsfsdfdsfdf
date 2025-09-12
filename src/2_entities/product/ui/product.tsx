@@ -2,44 +2,28 @@ import Image from "next/image";
 import React from "react";
 import { IProduct } from "../config";
 import Link from "next/link";
-import { Skeleton } from "@shared/ui/skeleton";
+
 import { Button } from "@shared/ui/button";
 import { Plus } from "lucide-react";
 import { cn } from "@shared/lib/utils";
 
 interface IProps {
   product: IProduct;
-  isLoading?: boolean;
 }
 
-export const Product = ({ product, isLoading = false }: IProps) => {
-  if (isLoading) {
-    return (
-      <Link
-        href={`/catalogue/${product.id}`}
-        className="flex flex-col gap-1 items-center w-full"
-      >
-        <Skeleton className="rounded-[40px] w-full aspect-square object-cover shadow-lg" />
-        <div className="flex flex-col gap-1 w-full items-center">
-          <Skeleton className="text-center justify-start text-foreground text-3xl font-black h-10 shadow-lg rounded-full w-2/3" />
-
-          <Skeleton className="text-center justify-start text-foreground text-2xl font-semibold h-10 shadow-lg rounded-full w-1/3" />
-        </div>
-      </Link>
-    );
-  }
-
+export const Product = ({ product }: IProps) => {
   return (
     <>
       {product.variant === "big" ? (
         <Link
+          id={product.id.toString()}
           href={`/catalogue/${product.id}`}
           className={cn(
             "col-span-2 row-span-2 w-full h-full grid grid-cols-1 items-center gap-5 py-5 px-4 pb-0"
           )}
         >
           <Image
-            src={product.image}
+            src={product.image ?? null}
             alt={product.name}
             className=" items-center justify-center flex w-full aspect-square object-cover "
             width={500}
@@ -57,7 +41,10 @@ export const Product = ({ product, isLoading = false }: IProps) => {
           <div className="flex flex-row gap-5 items-center">
             <Button size="sm">
               <Plus className="size-[24px]" strokeWidth={2.5} />
-              {product.price} ₽
+              {product.type?.length && product.type?.length > 1
+                ? `от ${product.type?.[0].price} ₽`
+                : product.type?.[0].price}{" "}
+              ₽
             </Button>
             {product.oldPrice && (
               <div className="relative">
@@ -87,12 +74,12 @@ export const Product = ({ product, isLoading = false }: IProps) => {
         <Link
           href={`/catalogue/${product.id}`}
           className={cn(
-            "flex flex-col h-[400px] w-full justify-between items-center"
+            "flex flex-col h-[360px] w-full justify-between items-center"
           )}
         >
           <div className="flex flex-col gap-1">
             <Image
-              src={product.image}
+              src={product.image ?? null}
               alt={product.name}
               className=" items-center justify-center flex w-[260px] aspect-square object-cover "
               width={500}
@@ -103,7 +90,7 @@ export const Product = ({ product, isLoading = false }: IProps) => {
               {product.name}
             </p>
           </div>
-          {product.oldPrice && (
+          {/* {product.oldPrice && (
             <div className="relative">
               <p className="text-center justify-start text-2xl text-muted-foreground font-semibold">
                 {product.oldPrice} ₽
@@ -124,10 +111,16 @@ export const Product = ({ product, isLoading = false }: IProps) => {
                 />
               </svg>
             </div>
-          )}
+          )} */}
           <Button size="sm">
-            <Plus className="size-[24px]" strokeWidth={2.5} />
-            {product.price} ₽
+            {product.type?.length && product.type?.length > 1 ? (
+              `от ${product.type?.[0].price} ₽`
+            ) : (
+              <>
+                <Plus className="size-[24px]" strokeWidth={2.5} />
+                {product.type?.[0].price} ₽
+              </>
+            )}
           </Button>
         </Link>
       )}

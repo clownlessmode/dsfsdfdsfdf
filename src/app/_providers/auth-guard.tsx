@@ -10,7 +10,7 @@ interface Props {
 
 export function TerminalAuthGuard({ children }: Props) {
   const authorized = useTerminalAuth((s) => s.authorized);
-  console.log(authorized);
+
   const pathname = usePathname();
   const router = useRouter();
 

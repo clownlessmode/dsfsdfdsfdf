@@ -20,8 +20,8 @@ export const Ingredient = ({
     <div className="flex flex-col gap-8 bg-white rounded-[60px] p-[25px] items-center">
       <div className="flex flex-col bg-white rounded-[60px] items-center w-full">
         <Image
-          src={ingredient.image}
-          alt={ingredient.name}
+          src={ingredient.image ?? null}
+          alt={ingredient.name ?? ""}
           width={100}
           className="rounded-[50px] w-full h-[300px] object-cover"
           height={100}
