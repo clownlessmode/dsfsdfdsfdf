@@ -12,7 +12,7 @@ const CtaButton = ({ className }: { className?: string }) => {
     >
       <Image
         unoptimized
-        src="/assets/cta-button.png"
+        src="/foodcord-terminal/assets/cta-button.png"
         alt="CTA Button"
         width={705 * 2}
         height={200 * 2}

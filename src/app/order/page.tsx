@@ -166,7 +166,7 @@ const OrderContent = () => {
         >
           <Image
             unoptimized
-            src="/assets/camera.png"
+            src="/foodcord-terminal/assets/camera.png"
             alt="order"
             width={100}
             height={100}
