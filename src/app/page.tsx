@@ -10,7 +10,7 @@ export const revalidate = 1800; // 30 minutes
 const getAdvertisements = async () => {
   try {
     const response = await fetch(
-      "http://localhost:3006/api/foodcord/banner-main",
+      `${process.env.NEXT_PUBLIC_API_URL}/banner-main`,
       { credentials: "include" }
     );
 

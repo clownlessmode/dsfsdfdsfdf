@@ -25,7 +25,7 @@ export const createOrder = async (
   request: CreateOrderRequest
 ): Promise<CreateOrderResponse> => {
   try {
-    const response = await fetch("http://localhost:3006/api/foodcord/orders", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
       method: "POST",
       headers: {
         accept: "*/*",

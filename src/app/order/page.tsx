@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import Background from "@app/catalogue/[id]/background";
 import { useCart } from "@entities/cart";
@@ -7,10 +6,10 @@ import { Button } from "@shared/ui/button";
 import { Logotype } from "@shared/ui/logotype";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { Suspense } from "react";
 import { motion } from "framer-motion";
 
-const Page = () => {
+const OrderContent = () => {
   const router = useRouter();
   const { clearCart } = useCart();
   const { clearUserData } = useSession();
@@ -225,6 +224,25 @@ const Page = () => {
         </Button>
       </motion.div>
     </main>
+  );
+};
+
+const Page = () => {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex flex-col justify-center p-10 h-full min-h-screen gap-10 items-center relative">
+          <div className="inset-0 absolute -z-10">
+            <Background color="#FFE5E5" />
+          </div>
+          <div className="text-center text-yellow-950 text-4xl font-medium">
+            Загрузка...
+          </div>
+        </main>
+      }
+    >
+      <OrderContent />
+    </Suspense>
   );
 };
 

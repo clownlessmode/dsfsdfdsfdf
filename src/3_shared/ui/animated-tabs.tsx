@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@shared/lib/utils";
+import { useEffect, useState } from "react";
 
 interface TabItem {
   id: string;
@@ -36,35 +37,41 @@ export const AnimatedTabs = ({
   itemHeight = 160, // h-40 = 160px
   gap = 8,
 }: AnimatedTabsProps) => {
+  const [dynamicWidth, setDynamicWidth] = useState(itemWidth);
+
+  useEffect(() => {
+    // Вычисляем максимальную ширину на основе содержимого только на клиенте
+    if (typeof window === "undefined" || !document) return;
+
+    const calculateMaxWidth = () => {
+      const minWidth = itemWidth;
+      // Создаем временный элемент для измерения текста
+      const tempElement = document.createElement("div");
+      tempElement.style.position = "absolute";
+      tempElement.style.visibility = "hidden";
+      tempElement.style.whiteSpace = "nowrap";
+      tempElement.style.fontSize = "40px";
+      tempElement.style.fontWeight = "bold";
+      tempElement.style.padding = "0 40px";
+      document.body.appendChild(tempElement);
+
+      let maxTextWidth = 0;
+      items.forEach((item) => {
+        tempElement.textContent = item.name;
+        const textWidth = tempElement.offsetWidth;
+        maxTextWidth = Math.max(maxTextWidth, textWidth);
+      });
+
+      document.body.removeChild(tempElement);
+
+      // Возвращаем максимальную ширину между минимальной и шириной текста
+      return Math.max(minWidth, maxTextWidth);
+    };
+
+    setDynamicWidth(calculateMaxWidth());
+  }, [items, itemWidth]);
+
   if (!items || items.length <= 1) return null;
-
-  // Вычисляем максимальную ширину на основе содержимого
-  const calculateMaxWidth = () => {
-    const minWidth = itemWidth;
-    // Создаем временный элемент для измерения текста
-    const tempElement = document.createElement("div");
-    tempElement.style.position = "absolute";
-    tempElement.style.visibility = "hidden";
-    tempElement.style.whiteSpace = "nowrap";
-    tempElement.style.fontSize = "40px";
-    tempElement.style.fontWeight = "bold";
-    tempElement.style.padding = "0 40px";
-    document.body.appendChild(tempElement);
-
-    let maxTextWidth = 0;
-    items.forEach((item) => {
-      tempElement.textContent = item.name;
-      const textWidth = tempElement.offsetWidth;
-      maxTextWidth = Math.max(maxTextWidth, textWidth);
-    });
-
-    document.body.removeChild(tempElement);
-
-    // Возвращаем максимальную ширину между минимальной и шириной текста
-    return Math.max(minWidth, maxTextWidth);
-  };
-
-  const dynamicWidth = calculateMaxWidth();
 
   return (
     <div

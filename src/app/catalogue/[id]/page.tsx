@@ -6,7 +6,7 @@ export const revalidate = 30; // 30 seconds
 async function getProduct(id: number) {
   try {
     const response = await fetch(
-      `http://localhost:3006/api/foodcord/product-main/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/product-main/${id}`,
       {
         next: { revalidate: 30 },
         credentials: "include",
@@ -26,7 +26,7 @@ async function getProduct(id: number) {
 async function getAllProductIds() {
   try {
     const response = await fetch(
-      `http://localhost:3006/api/foodcord/product-main`,
+      `${process.env.NEXT_PUBLIC_API_URL}/product-main`,
       {
         next: { revalidate: 30 },
         credentials: "include",

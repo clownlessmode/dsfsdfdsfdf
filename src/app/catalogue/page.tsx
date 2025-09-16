@@ -9,7 +9,7 @@ export const revalidate = 3600; // 1 hour
 const getProducts = async (): Promise<IProduct[]> => {
   try {
     const response = await fetch(
-      "http://localhost:3006/api/foodcord/product-main",
+      `${process.env.NEXT_PUBLIC_API_URL}/product-main`,
       {
         credentials: "include",
       }
@@ -23,7 +23,7 @@ const getProducts = async (): Promise<IProduct[]> => {
 
 const getCategories = async (): Promise<ICategoryResponse> => {
   try {
-    const response = await fetch("http://localhost:3006/api/foodcord/groups", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
       credentials: "include",
     });
     return response.json();

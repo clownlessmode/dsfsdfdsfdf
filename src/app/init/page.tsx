@@ -39,7 +39,7 @@ export default function InitPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     const response = await fetch(
-      "http://localhost:3006/api/foodcord/auth/login",
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
       {
         method: "POST",
         body: JSON.stringify(data),
