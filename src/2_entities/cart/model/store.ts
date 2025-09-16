@@ -8,11 +8,60 @@ const useCartStore = create<CartStore>()(
       cart: { items: [] },
       setCart: (cart: Cart) => set({ cart }),
       addCartItem: (item: CartItem) =>
-        set((state) => ({
-          cart: {
-            items: [...(state.cart?.items ?? []), item],
-          },
-        })),
+        set((state) => {
+          const items = state.cart?.items ?? [];
+
+          // Генерируем ID для нового товара
+          const newItemId = `${item.product.id}-${
+            item.selectedType?.id || "default"
+          }-${JSON.stringify(item.extras)}-${Array.from(item.removedIngredients)
+            .sort()
+            .join(",")}`;
+
+          // Ищем существующий товар с таким же ID
+          const existingItemIndex = items.findIndex((existingItem) => {
+            const existingItemId = `${existingItem.product.id}-${
+              existingItem.selectedType?.id || "default"
+            }-${JSON.stringify(existingItem.extras)}-${Array.from(
+              existingItem.removedIngredients
+            )
+              .sort()
+              .join(",")}`;
+            return existingItemId === newItemId;
+          });
+
+          if (existingItemIndex !== -1) {
+            // Если товар уже существует, увеличиваем количество
+            const newItems = [...items];
+            const updatedItem = { ...newItems[existingItemIndex] };
+            updatedItem.quantity += item.quantity;
+
+            // Пересчитываем общую цену с учетом дополнений
+            const unitPrice = updatedItem.selectedType?.price || 0;
+            const extrasTotal =
+              updatedItem.product.extras?.reduce((sum, extra) => {
+                const count = updatedItem.extras[extra.id] ?? 0;
+                return sum + count * (extra.price ?? 0);
+              }, 0) ?? 0;
+
+            updatedItem.totalPrice =
+              updatedItem.quantity * (unitPrice + extrasTotal);
+            newItems[existingItemIndex] = updatedItem;
+
+            return {
+              cart: {
+                items: newItems,
+              },
+            };
+          } else {
+            // Если товар не существует, добавляем новый
+            return {
+              cart: {
+                items: [...items, item],
+              },
+            };
+          }
+        }),
       removeCartItem: (itemId: string) =>
         set((state) => {
           const items = state.cart?.items ?? [];
@@ -57,8 +106,17 @@ const useCartStore = create<CartStore>()(
           const newItems = [...items];
           const updatedItem = { ...newItems[itemIndex] };
           updatedItem.quantity += 1;
+
+          // Пересчитываем общую цену с учетом дополнений
+          const unitPrice = updatedItem.selectedType?.price || 0;
+          const extrasTotal =
+            updatedItem.product.extras?.reduce((sum, extra) => {
+              const count = updatedItem.extras[extra.id] ?? 0;
+              return sum + count * (extra.price ?? 0);
+            }, 0) ?? 0;
+
           updatedItem.totalPrice =
-            updatedItem.quantity * (updatedItem.selectedType?.price || 0);
+            updatedItem.quantity * (unitPrice + extrasTotal);
           newItems[itemIndex] = updatedItem;
 
           return {
@@ -89,8 +147,17 @@ const useCartStore = create<CartStore>()(
           // Если количество больше 1, уменьшаем на 1
           if (updatedItem.quantity > 1) {
             updatedItem.quantity -= 1;
+
+            // Пересчитываем общую цену с учетом дополнений
+            const unitPrice = updatedItem.selectedType?.price || 0;
+            const extrasTotal =
+              updatedItem.product.extras?.reduce((sum, extra) => {
+                const count = updatedItem.extras[extra.id] ?? 0;
+                return sum + count * (extra.price ?? 0);
+              }, 0) ?? 0;
+
             updatedItem.totalPrice =
-              updatedItem.quantity * (updatedItem.selectedType?.price || 0);
+              updatedItem.quantity * (unitPrice + extrasTotal);
             newItems[itemIndex] = updatedItem;
           } else {
             // Если количество равно 1, удаляем товар полностью

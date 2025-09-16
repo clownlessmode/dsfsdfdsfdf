@@ -4,10 +4,22 @@ import { Session, SessionStore } from "../config";
 
 const useSessionStore = create<SessionStore>()(
   persist<SessionStore>(
-    (set) => ({
+    (set, get) => ({
       session: null,
       setSession: (session: Session) => set({ session }),
       clearSession: () => set({ session: null }),
+      clearUserData: () => {
+        const currentSession = get().session;
+        if (currentSession) {
+          set({
+            session: {
+              telephone: "",
+              receivingMethod: null,
+              idStore: currentSession.idStore, // Сохраняем idStore
+            },
+          });
+        }
+      },
     }),
     {
       name: "session",
@@ -19,5 +31,6 @@ export const useSession = () => {
   const session = useSessionStore((s) => s.session);
   const setSession = useSessionStore((s) => s.setSession);
   const clearSession = useSessionStore((s) => s.clearSession);
-  return { session, setSession, clearSession };
+  const clearUserData = useSessionStore((s) => s.clearUserData);
+  return { session, setSession, clearSession, clearUserData };
 };

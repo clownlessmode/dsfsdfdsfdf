@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node test-integration.js",
+    "test:components": "node test-components.js",
+    "test:all": "npm run test && npm run test:components"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",

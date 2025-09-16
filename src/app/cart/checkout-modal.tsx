@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@shared/ui/button";
 import { X } from "lucide-react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";

@@ -4,7 +4,7 @@ import CatalogueBrowser from "./catalogue-browser";
 import { IProduct } from "@entities/product";
 
 export const dynamic = "force-static";
-export const revalidate = 1800; // 30 minutes
+export const revalidate = 3600; // 1 hour
 
 const getProducts = async (): Promise<IProduct[]> => {
   try {

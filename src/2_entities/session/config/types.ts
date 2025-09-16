@@ -1,6 +1,7 @@
 export interface Session {
   telephone: string;
   receivingMethod: ReceivingMethod | null;
+  idStore?: number;
 }
 
 export enum ReceivingMethod {
@@ -12,4 +13,5 @@ export interface SessionStore {
   session: Session | null;
   setSession: (session: Session) => void;
   clearSession: () => void;
+  clearUserData: () => void;
 }

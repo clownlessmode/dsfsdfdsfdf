@@ -6,9 +6,9 @@ import {
   Minus,
   Plus,
   Trash,
-  ArrowLeft,
   ChevronLeft,
   ChevronRight,
+  Check,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@shared/ui/button";
@@ -18,9 +18,42 @@ import Link from "next/link";
 import ShoppingBagIcon from "@shared/assets/shopping-bag";
 import { LoyaltyModal } from "./loyalty-modal";
 import { CheckoutModal } from "./checkout-modal";
+import { useSession } from "@entities/session";
+import {
+  createOrder,
+  transformCartItemsToOrderProducts,
+  formatPhoneNumber,
+} from "@shared/api/orders";
+import { cn } from "@shared/lib/utils";
+
+// Функция для красивого форматирования номера телефона для отображения
+const formatPhoneForDisplay = (phone: string): string => {
+  // Убираем все символы кроме цифр
+  const digitsOnly = phone.replace(/\D/g, "");
+
+  // Если номер начинается с 7 и имеет 11 цифр, убираем 7
+  let cleanNumber = digitsOnly;
+  if (cleanNumber.startsWith("7") && cleanNumber.length === 11) {
+    cleanNumber = cleanNumber.substring(1);
+  } else if (cleanNumber.startsWith("8") && cleanNumber.length === 11) {
+    cleanNumber = cleanNumber.substring(1);
+  }
+
+  // Форматируем как +7 (XXX) XXX XX-XX
+  if (cleanNumber.length === 10) {
+    return `+7 (${cleanNumber.substring(0, 3)}) ${cleanNumber.substring(
+      3,
+      6
+    )} ${cleanNumber.substring(6, 8)}-${cleanNumber.substring(8)}`;
+  }
+
+  // Если формат не подходит, возвращаем как есть
+  return phone;
+};
 
 const CartPage = () => {
   const { cart, clearCart } = useCart();
+  const { session } = useSession();
   const router = useRouter();
   const [loyaltyModalOpen, setLoyaltyModalOpen] = React.useState(false);
   const [checkoutModalOpen, setCheckoutModalOpen] = React.useState(false);
@@ -42,17 +75,44 @@ const CartPage = () => {
   };
 
   const handleMethodSelect = async (method: string) => {
-    // Показываем алерт о том, что запрос отправлен
-    alert(
-      `Заказ отправлен на сервер! Способ получения: ${
-        method === "delivery" ? "Доставка" : "Самовывоз"
-      }`
-    );
+    console.log("handleMethodSelect", method);
+    if (!cart?.items || cart.items.length === 0) {
+      alert("Корзина пуста");
+      return;
+    }
 
-    // Ждем подтверждения от пользователя и переходим на страницу заказа
-    setTimeout(() => {
-      router.push("/order");
-    }, 1000);
+    if (!session?.idStore) {
+      alert("Ошибка: не найден ID магазина");
+      return;
+    }
+
+    try {
+      // Преобразуем товары из корзины в формат API
+      const products = transformCartItemsToOrderProducts(cart.items);
+
+      // Форматируем номер телефона
+      const phoneNumber = formatPhoneNumber(session.telephone);
+
+      // Создаем заказ
+      const result = await createOrder({
+        products,
+        idStore: session.idStore,
+        phoneNumber,
+      });
+
+      if (result.success) {
+        router.push(`/order?orderId=${result.orderId}`);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log(result);
+        clearCart();
+        // Не очищаем сессию здесь, так как idStore должен сохраняться
+      } else {
+        alert(`Ошибка при создании заказа: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Ошибка при создании заказа:", error);
+      alert("Произошла ошибка при создании заказа");
+    }
   };
 
   if (!cart?.items || cart.items.length === 0) {
@@ -106,16 +166,38 @@ const CartPage = () => {
                 className="flex flex-row justify-between items-center bg-muted rounded-[40px] px-10 py-5"
               >
                 <div className="w-[100px]" />
-                <p className="text-3xl font-medium">Ввести карту лояльности</p>
+                <p className="text-3xl font-medium text-center text-balance">
+                  {session?.telephone
+                    ? `Добавлена карта лояльности по номеру ${formatPhoneForDisplay(
+                        session.telephone
+                      )}`
+                    : "Ввести карту лояльности"}
+                </p>
                 <Button
-                  className="!w-[100px] !h-[100px] !p-0 shrink-0"
+                  className={cn(
+                    "!w-[100px] !h-[100px] !p-0 shrink-0",
+                    session?.telephone && "bg-emerald-500"
+                  )}
                   variant={"ghost"}
                 >
-                  <ChevronRight className="!size-[50px]" />
+                  {session?.telephone ? (
+                    <Check className="!size-[50px]" color="white" />
+                  ) : (
+                    <ChevronRight className="!size-[50px]" />
+                  )}
                 </Button>
               </div>
               {cart?.items.map((item, index) => (
-                <CartProductRow key={item.product.id + index} item={item} />
+                <CartProductRow
+                  key={`${item.product.id}-${
+                    item.selectedType?.id || "default"
+                  }-${JSON.stringify(item.extras)}-${Array.from(
+                    item.removedIngredients
+                  )
+                    .sort()
+                    .join(",")}-${index}`}
+                  item={item}
+                />
               ))}
             </div>
           </section>

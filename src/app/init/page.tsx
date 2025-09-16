@@ -9,6 +9,7 @@ import { useState } from "react";
 import VirtualKeyboard from "@shared/ui/virtual-keyboard";
 import { useRouter } from "next/navigation";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
+import { useSession } from "@entities/session";
 import { Logotype } from "@shared/ui/logotype";
 
 interface LoginFormData {
@@ -34,6 +35,7 @@ export default function InitPage() {
     fieldName: activeField || "email",
   });
   const authStore = useTerminalAuth();
+  const { setSession } = useSession();
 
   const onSubmit = async (data: LoginFormData) => {
     const response = await fetch(
@@ -50,6 +52,15 @@ export default function InitPage() {
 
     if (responseData.auth === true) {
       authStore.authorize();
+      console.log(responseData);
+      // Сохраняем idStore в сессии, если он есть в ответе
+      if (responseData.store.idStore) {
+        setSession({
+          telephone: "",
+          receivingMethod: null,
+          idStore: responseData.store.idStore,
+        });
+      }
       router.push("/");
     } else {
       authStore.deauthorize();

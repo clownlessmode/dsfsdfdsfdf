@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NumericKeyboard } from "@shared/ui/numeric-keyboard";
+import { useSession } from "@entities/session";
 
 interface LoyaltyModalProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface LoyaltyModalProps {
 }
 
 export const LoyaltyModal = ({ open, onClose }: LoyaltyModalProps) => {
+  const { setSession, session } = useSession();
   const [phoneNumber, setPhoneNumber] = React.useState("");
 
   const handleClose = () => {
@@ -21,7 +23,11 @@ export const LoyaltyModal = ({ open, onClose }: LoyaltyModalProps) => {
   const handleApply = () => {
     if (phoneNumber.length >= 11) {
       // Здесь можно добавить логику обработки номера телефона
-      console.log("Применяем номер:", phoneNumber);
+      setSession({
+        telephone: phoneNumber,
+        receivingMethod: session?.receivingMethod || null,
+        idStore: session?.idStore || undefined,
+      });
       handleClose();
     } else {
       // Можно добавить уведомление о неполном номере
