@@ -13,7 +13,7 @@ const getAdvertisements = async () => {
       `${process.env.NEXT_PUBLIC_API_URL}/banner-main`,
       { credentials: "include" }
     );
-
+    console.log(response);
     return response.json();
   } catch (error) {
     console.error("Failed to fetch advertisements:", error);

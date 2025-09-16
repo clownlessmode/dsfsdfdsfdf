@@ -14,6 +14,8 @@ const getProducts = async (): Promise<IProduct[]> => {
         credentials: "include",
       }
     );
+    console.log(response);
+
     return response.json();
   } catch (error) {
     console.error("Failed to fetch categories:", error);
@@ -26,6 +28,8 @@ const getCategories = async (): Promise<ICategoryResponse> => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
       credentials: "include",
     });
+    console.log(response);
+
     return response.json();
   } catch (error) {
     console.error("Failed to fetch categories:", error);

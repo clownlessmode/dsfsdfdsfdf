@@ -48,6 +48,8 @@ export default function InitPage() {
         },
       }
     );
+    console.log(response);
+
     const responseData = await response.json();
 
     if (responseData.auth === true) {
