@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import NextImage from "next/image";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@shared/ui/button";
@@ -104,7 +104,7 @@ export const ProductConfigurator = ({ product }: Props) => {
         />
       )}
       <div className="flex flex-col items-center">
-        <Image
+        <NextImage
           unoptimized
           alt={product.name || "product"}
           className="aspect-square w-full object-cover"

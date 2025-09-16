@@ -10,7 +10,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import Image from "next/image";
+import NextImage from "next/image";
 import React from "react";
 import { InfoModal } from "./info-modal";
 import { AnimatePresence, motion } from "framer-motion";
@@ -150,7 +150,7 @@ export const MakeSweet = ({
               </p>
               <div className="flex flex-row -space-x-[35px]">
                 {product.extras?.slice(0, 2).map((ingredient) => (
-                  <Image
+                  <NextImage
                     unoptimized
                     key={ingredient.id}
                     src={ingredient.image ?? null}
@@ -233,7 +233,7 @@ export const MakeSweet = ({
                           whileHover={{ scale: 1.01 }}
                         >
                           <div className="flex flex-col gap-1">
-                            <Image
+                            <NextImage
                               unoptimized
                               src={ingredient.image}
                               alt={ingredient.name ?? ""}
