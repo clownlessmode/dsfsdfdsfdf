@@ -105,7 +105,8 @@ const Background = ({ color }: { color: string }) => {
         <clipPath id="clip0_285_263">
           <rect width="1080" height="1920" fill="white" />
         </clipPath>
-        <image
+        <Image
+          unoptimized
           id="image0_285_263"
           width="4096"
           height="2894"

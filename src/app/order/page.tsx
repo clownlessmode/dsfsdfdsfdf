@@ -165,6 +165,7 @@ const OrderContent = () => {
           }}
         >
           <Image
+            unoptimized
             src="/assets/camera.png"
             alt="order"
             width={100}

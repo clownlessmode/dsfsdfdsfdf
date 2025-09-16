@@ -151,6 +151,7 @@ export const MakeSweet = ({
               <div className="flex flex-row -space-x-[35px]">
                 {product.extras?.slice(0, 2).map((ingredient) => (
                   <Image
+                    unoptimized
                     key={ingredient.id}
                     src={ingredient.image ?? null}
                     alt={ingredient.name ?? ""}
@@ -233,6 +234,7 @@ export const MakeSweet = ({
                         >
                           <div className="flex flex-col gap-1">
                             <Image
+                              unoptimized
                               src={ingredient.image}
                               alt={ingredient.name ?? ""}
                               width={100}

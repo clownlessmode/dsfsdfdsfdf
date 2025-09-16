@@ -3,8 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   basePath: "/foodcord-terminal",
   images: {
-    loader: "custom",
-    loaderFile: "./imgLoader.ts",
     minimumCacheTTL: 60 * 60 * 24,
     remotePatterns: [
       {
