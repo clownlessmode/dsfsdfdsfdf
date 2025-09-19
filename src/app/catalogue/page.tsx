@@ -14,7 +14,7 @@ const getProducts = async (): Promise<IProduct[]> => {
         credentials: "include",
       }
     );
-    console.log(response);
+    console.log(response.json);
 
     return response.json();
   } catch (error) {
@@ -28,7 +28,7 @@ const getCategories = async (): Promise<ICategoryResponse> => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
       credentials: "include",
     });
-    console.log(response);
+    console.log(response.json);
 
     return response.json();
   } catch (error) {

@@ -12,12 +12,12 @@ async function getProduct(id: number) {
         credentials: "include",
       }
     );
-    console.log(response);
+    console.log(response.json);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    console.log(response);
+    console.log(response.json);
 
     const data = await response.json();
     return data.data || data;
@@ -36,7 +36,7 @@ async function getAllProductIds() {
         credentials: "include",
       }
     );
-    console.log(response);
+    console.log(response.json);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

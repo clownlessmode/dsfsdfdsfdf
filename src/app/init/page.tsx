@@ -48,7 +48,7 @@ export default function InitPage() {
         },
       }
     );
-    console.log(response);
+    console.log(response.json);
 
     const responseData = await response.json();
 
