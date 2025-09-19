@@ -152,6 +152,7 @@ export const MakeSweet = ({
                 {product.extras?.slice(0, 2).map((ingredient) => (
                   <NextImage
                     loading="eager"
+                    priority={true}
                     key={ingredient.id}
                     src={ingredient.image ?? null}
                     alt={ingredient.name ?? ""}
@@ -235,6 +236,7 @@ export const MakeSweet = ({
                           <div className="flex flex-col gap-1">
                             <NextImage
                               loading="eager"
+                              priority={true}
                               src={ingredient.image}
                               alt={ingredient.name ?? ""}
                               width={100}

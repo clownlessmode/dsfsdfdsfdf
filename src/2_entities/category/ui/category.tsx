@@ -20,6 +20,7 @@ export const Category = ({ category, isActive, onClick }: IProps) => {
     >
       <Image
         loading="eager"
+        priority={true}
         src={category.image ?? null}
         alt="category"
         className="rounded-[10px] w-[100px] aspect-square object-cover"

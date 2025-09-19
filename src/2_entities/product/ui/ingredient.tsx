@@ -21,6 +21,7 @@ export const Ingredient = ({
       <div className="flex flex-col bg-white rounded-[60px] items-center w-full">
         <Image
           loading="eager"
+          priority={true}
           src={ingredient.image ?? null}
           alt={ingredient.name ?? ""}
           width={100}

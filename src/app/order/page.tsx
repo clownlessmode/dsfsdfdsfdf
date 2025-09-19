@@ -185,6 +185,7 @@ const OrderContent = () => {
           {qrCodeDataUrl && (
             <Image
               loading="eager"
+              priority={true}
               src={qrCodeDataUrl}
               alt="QR код заказа"
               width={300}

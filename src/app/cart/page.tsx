@@ -255,6 +255,7 @@ export const CartProductRow = ({ item }: { item: CartItem }) => {
       <div className="flex flex-row items-center gap-4">
         <Image
           loading="eager"
+          priority={true}
           src={item.product.image}
           alt={item.product.name}
           width={160}
