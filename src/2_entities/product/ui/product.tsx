@@ -29,7 +29,6 @@ export const Product = ({ product }: IProps) => {
             className=" items-center justify-center flex w-full aspect-square object-cover "
             width={500}
             height={500}
-            loading="lazy"
           />
           <div className="flex-col gap-2">
             <h1 className="text-[48px] font-bold tracking-tighter">
@@ -86,7 +85,6 @@ export const Product = ({ product }: IProps) => {
               className=" items-center justify-center flex w-[260px] aspect-square object-cover "
               width={500}
               height={500}
-              loading="lazy"
             />
             <p className="text-center justify-start text-foreground text-3xl font-black">
               {product.name}

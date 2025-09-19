@@ -11,7 +11,6 @@ const CtaButton = ({ className }: { className?: string }) => {
       )}
     >
       <Image
-        loading="eager"
         src="/foodcord-terminal/assets/cta-button.png"
         alt="CTA Button"
         width={705 * 2}
