@@ -48,7 +48,7 @@ const OrderContent = () => {
   // Generate QR code for order ID
   React.useEffect(() => {
     if (orderId) {
-      QRCode.toDataURL(orderId, {
+      QRCode.toDataURL(`IM${orderId}`, {
         width: 300,
         margin: 2,
         color: {
