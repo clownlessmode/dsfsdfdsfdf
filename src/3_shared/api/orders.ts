@@ -9,6 +9,7 @@ export interface OrderProductInclude {
 export interface OrderProduct {
   id: number;
   name: string;
+  count: number;
   include: OrderProductInclude[];
   exclude: string;
 }
@@ -95,6 +96,7 @@ export const transformCartItemsToOrderProducts = (
     return {
       id: item.selectedType?.id || item.product.id,
       name: item.product.name,
+      count: item.quantity,
       include,
       exclude,
     };
