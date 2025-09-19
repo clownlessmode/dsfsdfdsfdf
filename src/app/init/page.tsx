@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
 import { useSession } from "@entities/session";
 import { Logotype } from "@shared/ui/logotype";
+import { usePreload } from "@app/_providers/preload-provider";
 
 interface LoginFormData {
   email: string;
@@ -36,6 +37,7 @@ export default function InitPage() {
   });
   const authStore = useTerminalAuth();
   const { setSession } = useSession();
+  const { startPreload } = usePreload();
 
   const onSubmit = async (data: LoginFormData) => {
     const response = await fetch(
@@ -63,6 +65,8 @@ export default function InitPage() {
           idStore: responseData.store.idStore,
         });
       }
+      // Запускаем предзагрузку ресурсов
+      startPreload();
       router.push("/");
     } else {
       authStore.deauthorize();

@@ -22,7 +22,7 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const IDLE_TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
   const lastActivityRef = useRef<number>(Date.now());
-  const [now, setNow] = useState<number>(Date.now());
+  const [, setNow] = useState<number>(Date.now());
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const disabled = pathname === "/";
@@ -95,15 +95,7 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
     };
   }, [isIdleDialogOpen, disabled, handleLeave]);
 
-  const formatMs = (ms: number) => {
-    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    return `${pad(minutes)}:${pad(seconds)}`;
-  };
-
-  const elapsedMs = Math.min(now - lastActivityRef.current, IDLE_TIMEOUT_MS);
+  // Удаляем неиспользуемые переменные
 
   return (
     <>
