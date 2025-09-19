@@ -8,12 +8,14 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense } from "react";
 import { motion } from "framer-motion";
+import QRCode from "qrcode";
 
 const OrderContent = () => {
   const router = useRouter();
   const { clearCart } = useCart();
   const { clearUserData } = useSession();
   const [timeLeft, setTimeLeft] = React.useState(60);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState<string>("");
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   const handleNewOrder = React.useCallback(() => {
@@ -42,6 +44,22 @@ const OrderContent = () => {
       handleNewOrder();
     }
   }, [timeLeft, handleNewOrder]);
+
+  // Generate QR code for order ID
+  React.useEffect(() => {
+    if (orderId) {
+      QRCode.toDataURL(orderId, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: "#000000",
+          light: "#FFFFFF",
+        },
+      })
+        .then(setQrCodeDataUrl)
+        .catch(console.error);
+    }
+  }, [orderId]);
   return (
     <main className="flex flex-col justify-center  p-10 h-full min-h-screen gap-10 items-center relative">
       <div className="inset-0 absolute -z-10">
@@ -135,7 +153,7 @@ const OrderContent = () => {
           transition: { duration: 0.2 },
         }}
       >
-        {orderId}
+        {orderId ? orderId.slice(-6) : ""}
       </motion.h1>
 
       {/* Карточка с инструкцией */}
@@ -164,14 +182,16 @@ const OrderContent = () => {
             ease: "easeOut",
           }}
         >
-          <Image
-            unoptimized
-            src="/foodcord-terminal/assets/camera.png"
-            alt="order"
-            width={100}
-            height={100}
-            className="size-[300px] -mt-[200px]"
-          />
+          {qrCodeDataUrl && (
+            <Image
+              loading="eager"
+              src={qrCodeDataUrl}
+              alt="QR код заказа"
+              width={300}
+              height={300}
+              className="size-[300px] -mt-[200px]"
+            />
+          )}
         </motion.div>
 
         <motion.h1
@@ -184,7 +204,7 @@ const OrderContent = () => {
             ease: "easeOut",
           }}
         >
-          Запомни или сфотографируй номер заказа
+          Запомни номер заказа или отсканируй QR-код
         </motion.h1>
 
         <motion.h1
@@ -197,8 +217,8 @@ const OrderContent = () => {
             ease: "easeOut",
           }}
         >
-          Его нужно назвать на кассе для получения заказа. Чек и номер на нем не
-          печатаются
+          Назови номер на кассе или покажи QR-код для получения заказа. Чек и
+          номер на нем не печатаются
         </motion.h1>
       </motion.div>
 

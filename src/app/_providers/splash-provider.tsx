@@ -109,15 +109,6 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
     <>
       {children}
       {!disabled && (
-        <div className="fixed top-5 right-5 z-[100000]">
-          <div className="bg-white text-black rounded-full px-5 py-2 shadow-lg border border-black/10 text-2xl font-bold">
-            <span className="tabular-nums">
-              {formatMs(elapsedMs)} / {formatMs(IDLE_TIMEOUT_MS)}
-            </span>
-          </div>
-        </div>
-      )}
-      {!disabled && (
         <AnimatePresence>
           {isIdleDialogOpen && (
             <motion.div

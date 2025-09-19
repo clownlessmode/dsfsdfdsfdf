@@ -1,15 +1,23 @@
 import { CartItem } from "@entities/cart/config/types";
 
+export interface OrderProductInclude {
+  id: number;
+  name: string;
+  count: number;
+}
+
 export interface OrderProduct {
   id: number;
-  count: number;
-  comment: string;
+  name: string;
+  include: OrderProductInclude[];
+  exclude: string;
 }
 
 export interface CreateOrderRequest {
   products: OrderProduct[];
   idStore: number;
   phoneNumber: number;
+  receivingMethod: "self-service" | "delivery";
 }
 
 export interface CreateOrderResponse {
@@ -60,20 +68,35 @@ export const transformCartItemsToOrderProducts = (
   cartItems: CartItem[]
 ): OrderProduct[] => {
   return cartItems.map((item) => {
-    // Создаем комментарий из удаленных ингредиентов
+    // Создаем массив включенных допов (extras)
+    const include: OrderProductInclude[] = Object.keys(item.extras)
+      .filter((extraId) => item.extras[parseInt(extraId)] > 0)
+      .map((extraId) => {
+        const extra = item.product.extras?.find(
+          (e) => e.id.toString() === extraId
+        );
+        return {
+          id: parseInt(extraId),
+          name: extra?.name || `Доп ${extraId}`,
+          count: item.extras[parseInt(extraId)],
+        };
+      });
+
+    // Создаем строку исключенных ингредиентов
     const removedIngredients = Array.from(item.removedIngredients)
       .map((ingredientIndex) => item.product.ingredients[ingredientIndex])
       .filter(Boolean);
 
-    const comment =
+    const exclude =
       removedIngredients.length > 0
         ? `Убрать: ${removedIngredients.join(", ")}`
         : "";
 
     return {
       id: item.selectedType?.id || item.product.id,
-      count: item.quantity,
-      comment,
+      name: item.product.name,
+      include,
+      exclude,
     };
   });
 };

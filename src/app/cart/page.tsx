@@ -98,6 +98,7 @@ const CartPage = () => {
         products,
         idStore: session.idStore,
         phoneNumber,
+        receivingMethod: method as "self-service" | "delivery",
       });
 
       if (result.success) {
@@ -253,7 +254,7 @@ export const CartProductRow = ({ item }: { item: CartItem }) => {
     <div className="flex flex-row justify-between w-full items-center">
       <div className="flex flex-row items-center gap-4">
         <Image
-          unoptimized
+          loading="eager"
           src={item.product.image}
           alt={item.product.name}
           width={160}

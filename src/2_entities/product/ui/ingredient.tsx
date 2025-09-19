@@ -20,7 +20,7 @@ export const Ingredient = ({
     <div className="flex flex-col gap-8 bg-white rounded-[60px] p-[25px] items-center">
       <div className="flex flex-col bg-white rounded-[60px] items-center w-full">
         <Image
-          unoptimized
+          loading="eager"
           src={ingredient.image ?? null}
           alt={ingredient.name ?? ""}
           width={100}

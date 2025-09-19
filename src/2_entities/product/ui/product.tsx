@@ -23,7 +23,7 @@ export const Product = ({ product }: IProps) => {
           )}
         >
           <Image
-            unoptimized
+            loading="eager"
             src={product.image ?? null}
             alt={product.name}
             className=" items-center justify-center flex w-full aspect-square object-cover "
@@ -80,7 +80,7 @@ export const Product = ({ product }: IProps) => {
         >
           <div className="flex flex-col gap-1">
             <Image
-              unoptimized
+              loading="eager"
               src={product.image ?? null}
               alt={product.name}
               className=" items-center justify-center flex w-[260px] aspect-square object-cover "

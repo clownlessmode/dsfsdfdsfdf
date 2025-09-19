@@ -86,7 +86,7 @@ export const CheckoutModal = ({
                 >
                   <div className="self-stretch h-72 p-2.5 relative bg-stone-100 rounded-[60px]  outline-offset-[-1px]inline-flex justify-center items-center gap-2.5 overflow-hidden">
                     <Image
-                      unoptimized
+                      loading="eager"
                       src="/foodcord-terminal/receiving-method/on-the-plate.png"
                       alt="На подносе"
                       width={391}
@@ -103,7 +103,7 @@ export const CheckoutModal = ({
                 >
                   <div className="self-stretch h-72 p-2.5 relative bg-stone-100 rounded-[60px] inline-flex justify-center items-center gap-2.5 overflow-hidden">
                     <Image
-                      unoptimized
+                      loading="eager"
                       src="/foodcord-terminal/receiving-method/in-a-bag.png"
                       alt="В пакете"
                       width={412}

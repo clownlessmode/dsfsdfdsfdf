@@ -9,7 +9,7 @@ export const CartRow = () => {
     <div className="flex flex-row -space-x-[35px]">
       {cart?.items.map((item) => (
         <Image
-          unoptimized
+          loading="eager"
           key={item.product.id}
           src={item.product.image ?? null}
           alt={item.product.name}

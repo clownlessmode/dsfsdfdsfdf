@@ -105,7 +105,7 @@ export const ProductConfigurator = ({ product }: Props) => {
       )}
       <div className="flex flex-col items-center">
         <NextImage
-          unoptimized
+          loading="eager"
           alt={product.name || "product"}
           className="aspect-square w-full object-cover"
           src={product.image ?? null}
