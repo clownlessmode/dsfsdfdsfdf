@@ -15,6 +15,7 @@ interface PreloadContextType {
   isPreloading: boolean;
   isPreloadComplete: boolean;
   startPreload: () => void;
+  resetPreload: () => void;
 }
 
 const PreloadContext = createContext<PreloadContextType | undefined>(undefined);
@@ -35,7 +36,14 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
   children,
 }) => {
   const [isPreloading, setIsPreloading] = useState(false);
-  const [isPreloadComplete, setIsPreloadComplete] = useState(false);
+  const [isPreloadComplete, setIsPreloadComplete] = useState(() => {
+    // Проверяем localStorage при инициализации
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("foodcort_preload_complete") === "true";
+    }
+    return false;
+  });
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const { authorized } = useTerminalAuth();
 
   const {
@@ -51,20 +59,46 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
   const startPreload = useCallback(() => {
     setIsPreloading(true);
     setIsPreloadComplete(false);
+    setMinTimeElapsed(false);
+
+    // Минимальное время отображения экрана предзагрузки (2 секунды)
+    setTimeout(() => {
+      setMinTimeElapsed(true);
+    }, 2000);
+
     startPreloadResources();
   }, [startPreloadResources]);
 
+  const resetPreload = useCallback(() => {
+    setIsPreloading(false);
+    setIsPreloadComplete(false);
+    setMinTimeElapsed(false);
+    localStorage.removeItem("foodcort_preload_complete");
+    localStorage.removeItem("foodcort_preload_cache");
+  }, []);
+
   useEffect(() => {
-    if (isComplete && isPreloading) {
+    if (isComplete && isPreloading && minTimeElapsed) {
       setIsPreloading(false);
       setIsPreloadComplete(true);
+      // Сохраняем в localStorage, что предзагрузка завершена
+      localStorage.setItem("foodcort_preload_complete", "true");
     }
-  }, [isComplete, isPreloading]);
+  }, [isComplete, isPreloading, minTimeElapsed]);
 
-  // Автоматически запускаем предзагрузку после авторизации
+  // Автоматически запускаем предзагрузку после авторизации (только один раз)
   useEffect(() => {
     if (authorized && !isPreloadComplete && !isPreloading) {
-      startPreload();
+      // Проверяем, есть ли уже данные в кеше
+      const hasCachedData = localStorage.getItem("foodcort_preload_cache");
+
+      if (hasCachedData) {
+        // Если есть кеш, помечаем как завершенное без показа экрана
+        setIsPreloadComplete(true);
+      } else {
+        // Если нет кеша, запускаем предзагрузку
+        startPreload();
+      }
     }
   }, [authorized, isPreloadComplete, isPreloading, startPreload]);
 
@@ -72,6 +106,7 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
     isPreloading,
     isPreloadComplete,
     startPreload,
+    resetPreload,
   };
 
   return (

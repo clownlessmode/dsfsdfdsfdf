@@ -37,7 +37,7 @@ export default function InitPage() {
   });
   const authStore = useTerminalAuth();
   const { setSession } = useSession();
-  const { startPreload } = usePreload();
+  const { startPreload, resetPreload } = usePreload();
 
   const onSubmit = async (data: LoginFormData) => {
     const response = await fetch(
@@ -70,6 +70,7 @@ export default function InitPage() {
       router.push("/");
     } else {
       authStore.deauthorize();
+      resetPreload(); // Сбрасываем состояние предзагрузки
       alert("Авторизация не прошла");
     }
   };
