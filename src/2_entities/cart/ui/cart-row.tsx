@@ -10,6 +10,7 @@ export const CartRow = () => {
       {cart?.items.map((item) => (
         <Image
           loading="eager"
+          priority={true}
           key={item.product.id}
           src={item.product.image ?? null}
           alt={item.product.name}
