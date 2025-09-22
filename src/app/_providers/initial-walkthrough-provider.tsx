@@ -3,6 +3,11 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  addCacheBuster,
+  clearBrowserCache,
+  preloadImages,
+} from "@shared/lib/cache-utils";
 
 interface InitialWalkthroughProviderProps {
   children: React.ReactNode;
@@ -11,6 +16,12 @@ interface InitialWalkthroughProviderProps {
 interface CategoryGroup {
   id: number;
   image?: string | null;
+}
+
+interface Product {
+  id: number;
+  image?: string | null;
+  [key: string]: any;
 }
 
 export const InitialWalkthroughProvider: React.FC<
@@ -22,6 +33,7 @@ export const InitialWalkthroughProvider: React.FC<
   const [isActive, setIsActive] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [totalSteps, setTotalSteps] = useState(0);
+  const [currentAction, setCurrentAction] = useState("");
   const hasRunRef = useRef(false);
   const originalPathRef = useRef<string | null>(null);
 
@@ -53,9 +65,8 @@ export const InitialWalkthroughProvider: React.FC<
 
     const fetchCategories = async (): Promise<CategoryGroup[]> => {
       try {
-        const timestamp = Date.now();
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/groups?_cb=${timestamp}&_force_reload=true`,
+          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/groups`),
           {
             credentials: "include",
             cache: "no-store",
@@ -74,6 +85,27 @@ export const InitialWalkthroughProvider: React.FC<
       }
     };
 
+    const fetchProducts = async (): Promise<Product[]> => {
+      try {
+        const response = await fetch(
+          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/product-main`),
+          {
+            credentials: "include",
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache, no-store, must-revalidate",
+              Pragma: "no-cache",
+              Expires: "0",
+            },
+          }
+        );
+        const data = await response.json();
+        return Array.isArray(data) ? data : data.data || [];
+      } catch {
+        return [];
+      }
+    };
+
     const delay = (ms: number) =>
       new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -87,15 +119,51 @@ export const InitialWalkthroughProvider: React.FC<
 
     const run = async () => {
       setIsActive(true);
+      let stepIndex = 0;
+      const totalStepsCount = 4; // Общее количество шагов
+      setTotalSteps(totalStepsCount);
+
       try {
-        const categories = await fetchCategories();
+        // Шаг 1: Очистка кеша браузера
+        setCurrentAction("Очистка кеша браузера...");
+        setCurrentIndex(++stepIndex);
+        await clearBrowserCache();
+        await delay(1000);
+
+        // Шаг 2: Загрузка категорий и продуктов
+        setCurrentAction("Загрузка данных...");
+        setCurrentIndex(++stepIndex);
+        const [categories, products] = await Promise.all([
+          fetchCategories(),
+          fetchProducts(),
+        ]);
+        await delay(1000);
+
+        // Шаг 3: Сбор и предзагрузка изображений
+        setCurrentAction("Предзагрузка изображений...");
+        setCurrentIndex(++stepIndex);
+        const imageUrls: string[] = [];
+
+        // Добавляем изображения категорий
+        categories.forEach((cat) => {
+          if (cat.image) imageUrls.push(cat.image);
+        });
+
+        // Добавляем изображения продуктов
+        products.forEach((product) => {
+          if (product.image) imageUrls.push(product.image);
+        });
+
+        await preloadImages(imageUrls);
+        await delay(1000);
+
+        // Шаг 4: Прогрев страниц
+        setCurrentAction("Прогрев страниц...");
+        setCurrentIndex(++stepIndex);
 
         const basePaths: string[] = ["/", "/catalogue", "/cart", "/order"];
-
-        // Build category pages
         const categoryPaths = categories.map((c) => `/catalogue/${c.id}`);
 
-        // Build full walkthrough list; avoid duplicates and login route
         const seen = new Set<string>();
         const targets: string[] = [];
         const add = (p: string) => {
@@ -106,28 +174,22 @@ export const InitialWalkthroughProvider: React.FC<
           }
         };
 
-        // Prioritize home and catalogue first, then categories, finally cart/order
         basePaths.forEach(add);
         categoryPaths.forEach(add);
-
-        // Keep current page in the list as well (if present), but we'll start from current
-        setTotalSteps(targets.length);
 
         const originalPath = originalPathRef.current ?? "/";
 
         for (let i = 0; i < targets.length; i++) {
           const path = targets[i];
-          // Navigate only if different from current to avoid unnecessary rerenders
           if (window.location.pathname !== path) {
             router.push(path, { scroll: false });
             await waitForPath(path, 6000);
           }
-          setCurrentIndex(i + 1);
-          // Warm up for 4 seconds on each page
-          await delay(4000);
+          // Стоим 2 секунды на каждой странице
+          await delay(2000);
         }
 
-        // Return to original page if it is different
+        // Возврат на исходную страницу
         if (window.location.pathname !== originalPath) {
           router.push(originalPath, { scroll: false });
           await waitForPath(originalPath, 6000);
@@ -152,11 +214,13 @@ export const InitialWalkthroughProvider: React.FC<
         <div className="fixed inset-0 z-[1000] bg-background/60 backdrop-blur-md flex items-center justify-center">
           <div className="w-[720px] max-w-[90vw] rounded-[32px] border bg-card shadow-lg p-10 text-center">
             <div className="text-3xl font-extrabold">
-              Первоначальная настройка
+              Принудительная загрузка данных
             </div>
-            <div className="text-xl text-muted-foreground mt-3 mb-8">
-              Подогрев страниц и загрузка изображений ({currentIndex}/
-              {totalSteps})
+            <div className="text-xl text-muted-foreground mt-3 mb-4">
+              {currentAction}
+            </div>
+            <div className="text-lg text-muted-foreground mb-8">
+              Шаг {currentIndex} из {totalSteps}
             </div>
             <div className="w-full h-4 rounded-full bg-muted overflow-hidden">
               <div

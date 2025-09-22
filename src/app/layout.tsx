@@ -4,11 +4,9 @@ import "./_styles/globals.css";
 import "./_styles/tailwind.css";
 
 import {
-  QueryProvider,
   SplashProvider,
   TerminalAuthGuard,
   InitialWalkthroughProvider,
-  ForceReloadProvider,
 } from "./_providers";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -36,21 +34,15 @@ export default function RootLayout({
       className="h-full max-w-[1080px] overflow-hidden"
       suppressHydrationWarning
     >
-      <QueryProvider>
-        <body
-          className={`${ibmPlexSans.variable} ${inter.variable} antialiased min-h-screen h-full`}
-        >
-          <SplashProvider>
-            <TerminalAuthGuard>
-              <ForceReloadProvider>
-                <InitialWalkthroughProvider>
-                  {children}
-                </InitialWalkthroughProvider>
-              </ForceReloadProvider>
-            </TerminalAuthGuard>
-          </SplashProvider>
-        </body>
-      </QueryProvider>
+      <body
+        className={`${ibmPlexSans.variable} ${inter.variable} antialiased min-h-screen h-full`}
+      >
+        <SplashProvider>
+          <TerminalAuthGuard>
+            <InitialWalkthroughProvider>{children}</InitialWalkthroughProvider>
+          </TerminalAuthGuard>
+        </SplashProvider>
+      </body>
     </html>
   );
 }
