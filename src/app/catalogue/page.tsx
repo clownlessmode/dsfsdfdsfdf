@@ -18,9 +18,9 @@ const getProducts = async (): Promise<IProduct[]> => {
     const data = await response.json();
     console.log(data);
 
-    return response.json();
+    return data;
   } catch (error) {
-    console.error("Failed to fetch categories:", error);
+    console.error("Failed to fetch products:", error);
     return [];
   }
 };
@@ -33,7 +33,7 @@ const getCategories = async (): Promise<ICategoryResponse> => {
     const data = await response.json();
     console.log(data);
 
-    return response.json();
+    return data;
   } catch (error) {
     console.error("Failed to fetch categories:", error);
     return { data: [], success: false };
