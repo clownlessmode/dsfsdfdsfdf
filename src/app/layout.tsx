@@ -8,7 +8,6 @@ import {
   SplashProvider,
   TerminalAuthGuard,
   PreloadProvider,
-  SwProvider,
 } from "./_providers";
 import { CacheInfo } from "@shared/ui/cache-info";
 
@@ -44,10 +43,8 @@ export default function RootLayout({
           <SplashProvider>
             <TerminalAuthGuard>
               <PreloadProvider>
-                <SwProvider>
-                  {children}
-                  <CacheInfo />
-                </SwProvider>
+                {children}
+                <CacheInfo />
               </PreloadProvider>
             </TerminalAuthGuard>
           </SplashProvider>

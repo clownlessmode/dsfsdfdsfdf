@@ -6,12 +6,10 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useRef,
 } from "react";
 import { usePreloadResources } from "@shared/lib/use-preload-resources";
 import { PreloadScreen } from "@shared/ui/preload-screen";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
-import { useRouter } from "next/navigation";
 
 interface PreloadContextType {
   isPreloading: boolean;
@@ -47,11 +45,6 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
   });
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const { authorized } = useTerminalAuth();
-  const router = useRouter();
-  const [isWalkthroughRunning, setIsWalkthroughRunning] = useState(false);
-  const [walkthroughIndex, setWalkthroughIndex] = useState(0);
-  const [walkthroughTotal, setWalkthroughTotal] = useState(0);
-  const hasRunRef = useRef(false);
 
   const {
     startPreload: startPreloadResources,
@@ -61,7 +54,6 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
     categories,
     products,
     advertisements,
-    backgroundRefresh,
   } = usePreloadResources();
 
   const startPreload = useCallback(() => {
@@ -94,18 +86,6 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
     }
   }, [isComplete, isPreloading, minTimeElapsed]);
 
-  // Периодическое обновление каждые 30 минут в фоне
-  useEffect(() => {
-    const REFRESH_MS = 30 * 60 * 1000;
-    const id = setInterval(() => {
-      backgroundRefresh();
-      if (navigator.serviceWorker?.controller) {
-        navigator.serviceWorker.controller.postMessage("force-refresh");
-      }
-    }, REFRESH_MS);
-    return () => clearInterval(id);
-  }, [backgroundRefresh]);
-
   // Автоматически запускаем предзагрузку после авторизации (только один раз)
   useEffect(() => {
     if (authorized && !isPreloadComplete && !isPreloading) {
@@ -122,128 +102,6 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
     }
   }, [authorized, isPreloadComplete, isPreloading, startPreload]);
 
-  // Walkthrough on each page load: visit key routes for 2s each, then go home
-  useEffect(() => {
-    if (hasRunRef.current) return; // prevent multiple runs within the same load
-    hasRunRef.current = true;
-
-    try {
-      const run = async () => {
-        // Build route list: static pages + product pages
-        const staticRoutes: string[] = [
-          "/init",
-          "/catalogue",
-          "/cart",
-          "/order",
-          "/loyal",
-          "/", // splash/ads to refresh banner-main
-        ];
-
-        let productRoutes = (products || [])
-          .map((p) =>
-            p && typeof p.id !== "undefined" ? `/catalogue/${p.id}` : null
-          )
-          .filter((v): v is string => Boolean(v));
-
-        if (productRoutes.length === 0) {
-          try {
-            const cachedRaw = localStorage.getItem("foodcort_preload_cache");
-            if (cachedRaw) {
-              const cached = JSON.parse(cachedRaw);
-              if (cached && Array.isArray(cached.products)) {
-                productRoutes = cached.products
-                  .map((p: { id?: number | string }) =>
-                    p && typeof p.id !== "undefined"
-                      ? `/catalogue/${p.id}`
-                      : null
-                  )
-                  .filter((v: unknown): v is string => typeof v === "string");
-              }
-            }
-          } catch {
-            // ignore cache parse errors
-          }
-        }
-
-        // As a last resort, try fetching product IDs directly
-        if (productRoutes.length === 0) {
-          try {
-            const res = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/product-main`,
-              {
-                credentials: "include",
-                cache: "no-store",
-                headers: { "x-bypass-cache": "1" },
-              }
-            );
-            if (res.ok) {
-              const data = await res.json();
-              const list = Array.isArray(data?.data) ? data.data : data;
-              productRoutes = (list || [])
-                .map((p: { id?: number | string }) =>
-                  p && typeof p.id !== "undefined" ? `/catalogue/${p.id}` : null
-                )
-                .filter((v: unknown): v is string => typeof v === "string");
-            }
-          } catch {}
-        }
-
-        const filtered = staticRoutes.filter((p) => p !== "/login");
-        const walkthroughRoutes = [...filtered, ...productRoutes];
-
-        setWalkthroughIndex(0);
-        setWalkthroughTotal(walkthroughRoutes.length);
-        setIsWalkthroughRunning(true);
-        try {
-          localStorage.setItem("foodcort_walkthrough_running", "true");
-          // Clear local preload cache to force fresh data on walkthrough
-          localStorage.removeItem("foodcort_preload_cache");
-          localStorage.removeItem("foodcort_preload_complete");
-        } catch {}
-
-        // Tell SW to purge caches and bypass for the duration of the walkthrough
-        try {
-          if (navigator.serviceWorker?.controller) {
-            navigator.serviceWorker.controller.postMessage("purge-caches");
-            navigator.serviceWorker.controller.postMessage({
-              type: "bypass-cache-ms",
-              ms: Math.max(10000, walkthroughRoutes.length * 2200),
-            });
-          }
-        } catch {}
-
-        // Walk through each route for ~2 seconds
-        for (const path of walkthroughRoutes) {
-          // Ensure network-first by appending a rev param
-          const url = `${path}${path.includes("?") ? "&" : "?"}force=1`;
-          router.push(url);
-          setWalkthroughIndex((prev) =>
-            Math.min(prev + 1, walkthroughRoutes.length)
-          );
-          await new Promise((res) => setTimeout(res, 2000));
-        }
-
-        // Finish on home page
-        router.push("/");
-        setIsWalkthroughRunning(false);
-        try {
-          localStorage.setItem("foodcort_walkthrough_running", "false");
-        } catch {}
-      };
-
-      run();
-    } catch {
-      // ignore errors in walkthrough
-    }
-  }, [
-    authorized,
-    isPreloading,
-    isPreloadComplete,
-    router,
-    categories,
-    products,
-  ]);
-
   const contextValue: PreloadContextType = {
     isPreloading,
     isPreloadComplete,
@@ -253,55 +111,20 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
 
   return (
     <PreloadContext.Provider value={contextValue}>
-      <>
-        {isPreloading ? (
-          <PreloadScreen
-            stage={progress.stage}
-            progress={progress.progress}
-            total={progress.total}
-            current={progress.current}
-            error={error}
-            categoriesCount={categories.length}
-            productsCount={products.length}
-            advertisementsCount={advertisements.length}
-          />
-        ) : (
-          children
-        )}
-        {isWalkthroughRunning && (
-          <div
-            className="fixed inset-0 z-[1000] backdrop-blur-md bg-black/20 flex items-center justify-center"
-            aria-hidden
-          >
-            <div className="bg-white/80 rounded-3xl px-10 py-8 shadow-2xl border border-white/60">
-              <div className="text-3xl font-bold text-center">
-                Идет первичная настройка
-              </div>
-              <div className="mt-3 text-lg text-center text-muted-foreground">
-                Пожалуйста, подождите. Разогреваем страницы…
-              </div>
-              <div className="mt-6 h-2 w-[420px] bg-black/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-black/70 transition-all"
-                  style={{
-                    width: `${Math.min(
-                      walkthroughTotal > 0
-                        ? Math.round(
-                            (walkthroughIndex / walkthroughTotal) * 100
-                          )
-                        : 0,
-                      100
-                    )}%`,
-                  }}
-                />
-              </div>
-              <div className="mt-2 text-sm text-center text-muted-foreground">
-                {walkthroughIndex} / {walkthroughTotal}
-              </div>
-            </div>
-          </div>
-        )}
-      </>
+      {isPreloading ? (
+        <PreloadScreen
+          stage={progress.stage}
+          progress={progress.progress}
+          total={progress.total}
+          current={progress.current}
+          error={error}
+          categoriesCount={categories.length}
+          productsCount={products.length}
+          advertisementsCount={advertisements.length}
+        />
+      ) : (
+        children
+      )}
     </PreloadContext.Provider>
   );
 };

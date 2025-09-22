@@ -209,7 +209,7 @@ export const usePreloadResources = () => {
 
       // Изображения рекламы (низкий приоритет)
       advertisements.forEach((ad) => {
-        if (ad.url) {
+        if (ad.url && ad.type === "image") {
           lowPriorityImages.push(ad.url);
         }
       });
@@ -294,28 +294,5 @@ export const usePreloadResources = () => {
   return {
     ...result,
     startPreload,
-    // background refresh that re-fetches data and preloads images silently
-    backgroundRefresh: async () => {
-      try {
-        const [categories, products, advertisements] = await Promise.all([
-          fetchCategories(),
-          fetchProducts(),
-          fetchAdvertisements(),
-        ]);
-
-        // update cache with fresh data
-        setCachedData({ categories, products, advertisements });
-
-        // collect images from fresh data and warm image cache
-        const images: string[] = [];
-        categories.forEach((c) => c.image && images.push(c.image));
-        products.forEach((p) => p.image && images.push(p.image));
-        advertisements.forEach((ad) => ad.url && images.push(ad.url));
-        const uniqueImages = Array.from(new Set(images));
-        await preloadImages(uniqueImages, "low");
-      } catch {
-        // ignore background errors
-      }
-    },
   };
 };
