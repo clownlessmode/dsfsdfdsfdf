@@ -13,14 +13,30 @@ export function TerminalAuthGuard({ children }: Props) {
 
   const pathname = usePathname();
   const router = useRouter();
+  const isReload = (() => {
+    try {
+      const entries = performance.getEntriesByType(
+        "navigation"
+      ) as PerformanceNavigationTiming[];
+      if (entries && entries.length > 0) {
+        return entries[0].type === "reload";
+      }
+      // legacy fallback
+      // @ts-ignore
+      return performance?.navigation?.type === 1;
+    } catch {
+      return false;
+    }
+  })();
 
   useEffect(() => {
-    // Skip redirects while walkthrough is running
+    // Skip redirects while walkthrough is running or page is a reload
     try {
       if (localStorage.getItem("foodcort_walkthrough_running") === "true") {
         return;
       }
     } catch {}
+    if (isReload) return;
 
     // If not authorized, always push to /init
     if (!authorized && pathname !== "/init") {

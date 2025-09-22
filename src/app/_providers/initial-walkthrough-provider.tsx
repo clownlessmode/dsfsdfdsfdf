@@ -8,6 +8,7 @@ import {
   clearBrowserCache,
   preloadImages,
 } from "@shared/lib/cache-utils";
+import { useTerminalAuth } from "@entities/session/model/terminal-auth";
 
 interface InitialWalkthroughProviderProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ export const InitialWalkthroughProvider: React.FC<
 > = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const authorized = useTerminalAuth((s) => s.authorized);
 
   const [isActive, setIsActive] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,6 +59,8 @@ export const InitialWalkthroughProvider: React.FC<
   useEffect(() => {
     // Do not run on login page
     if (pathname?.startsWith("/init")) return;
+    // Do not run if not authorized to avoid hitting auth flows
+    if (!authorized) return;
     if (!isReload) return;
     if (hasRunRef.current) return;
 
@@ -109,11 +113,17 @@ export const InitialWalkthroughProvider: React.FC<
     const delay = (ms: number) =>
       new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-    const waitForPath = async (targetPath: string, timeoutMs = 5000) => {
+    const waitForPath = async (targetPath: string, timeoutMs = 8000) => {
       const start = Date.now();
+      // Wait until pathname matches and the document has rendered some content
       while (Date.now() - start < timeoutMs) {
-        if (window.location.pathname === targetPath) return;
-        await delay(50);
+        if (window.location.pathname === targetPath) {
+          // Ensure the main root has some content to avoid blank white screens
+          const hasContent =
+            document.body && document.body.innerText.trim().length > 0;
+          if (hasContent) return;
+        }
+        await delay(100);
       }
     };
 
@@ -165,7 +175,7 @@ export const InitialWalkthroughProvider: React.FC<
 
         // Подготавливаем список всех страниц для прогрева
         const basePaths: string[] = ["/", "/catalogue", "/cart", "/order"];
-        const categoryPaths = categories.map((c) => `/catalogue/${c.id}`);
+        // Visit ONLY product pages; categories have a separate route and can collide by id
         const productPaths = products.map((p) => `/catalogue/${p.id}`);
 
         const seen = new Set<string>();
@@ -179,13 +189,19 @@ export const InitialWalkthroughProvider: React.FC<
         };
 
         basePaths.forEach(add);
-        categoryPaths.forEach(add);
         productPaths.forEach(add);
 
         // Обновляем общее количество шагов (3 начальных + количество страниц для прогрева + возврат на исходную страницу)
         setTotalSteps(3 + targets.length + 1);
 
         const originalPath = originalPathRef.current ?? "/";
+
+        // Prefetch all targets to reduce blank screens on navigation
+        try {
+          for (const p of targets) {
+            router.prefetch(p);
+          }
+        } catch {}
 
         // Прогрев каждой страницы как отдельный шаг
         for (let i = 0; i < targets.length; i++) {

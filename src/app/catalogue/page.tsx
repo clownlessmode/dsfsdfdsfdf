@@ -22,7 +22,24 @@ const getProducts = async (): Promise<IProduct[]> => {
       }
     );
 
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Проверяем что ответ содержит контент
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`Invalid content type: ${contentType}`);
+    }
+
+    // Проверяем что тело ответа не пустое
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      throw new Error("Empty response body");
+    }
+
+    // Парсим JSON только если есть валидный контент
+    const data = JSON.parse(text);
     console.log(data);
 
     return data;
@@ -47,7 +64,25 @@ const getCategories = async (): Promise<ICategoryResponse> => {
         },
       }
     );
-    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Проверяем что ответ содержит контент
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`Invalid content type: ${contentType}`);
+    }
+
+    // Проверяем что тело ответа не пустое
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      throw new Error("Empty response body");
+    }
+
+    // Парсим JSON только если есть валидный контент
+    const data = JSON.parse(text);
     console.log(data);
 
     return data;

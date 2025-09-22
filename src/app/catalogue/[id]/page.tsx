@@ -22,7 +22,21 @@ async function getProduct(id: number) {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data = await response.json();
+
+    // Проверяем что ответ содержит контент
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`Invalid content type: ${contentType}`);
+    }
+
+    // Проверяем что тело ответа не пустое
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      throw new Error("Empty response body");
+    }
+
+    // Парсим JSON только если есть валидный контент
+    const data = JSON.parse(text);
     console.log(data);
 
     return data.data || data;
@@ -47,12 +61,27 @@ async function getAllProductIds() {
         },
       }
     );
-    const data = await response.json();
-    console.log(data);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    // Проверяем что ответ содержит контент
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`Invalid content type: ${contentType}`);
+    }
+
+    // Проверяем что тело ответа не пустое
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      throw new Error("Empty response body");
+    }
+
+    // Парсим JSON только если есть валидный контент
+    const data = JSON.parse(text);
+    console.log(data);
+
     return data.data || data;
   } catch (error) {
     console.error("Failed to fetch products:", error);
@@ -68,12 +97,8 @@ export async function generateStaticParams() {
   }));
 }
 
-const CatalogueIdPage = async ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
-  const { id } = await params;
+const CatalogueIdPage = async ({ params }: { params: { id: string } }) => {
+  const { id } = params;
   const product = await getProduct(Number(id));
   return <ProductConfigurator product={product ?? null} />;
 };
