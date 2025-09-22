@@ -1,7 +1,7 @@
 // Basic service worker for aggressive caching and periodic refresh
 // Precache core shell and static assets
 const BASE_PATH = "/foodcord-terminal";
-const VERSION = "v1";
+const VERSION = "v2"; // bump to invalidate old precaches
 const PRECACHE = `precache-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 const ROUTES_TO_PRECACHE = [
@@ -62,6 +62,9 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Global bypass window: when active, we skip caches and go network-first
+let BYPASS_CACHE_UNTIL_TS = 0;
+
 // Helper: SWR strategy for images and APIs
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(RUNTIME);
@@ -75,6 +78,22 @@ async function staleWhileRevalidate(request) {
     })
     .catch(() => cached);
   return cached || networkFetch;
+}
+
+async function networkFirst(request) {
+  try {
+    const net = await fetch(request, { cache: "no-store" });
+    if (net && net.status === 200) {
+      const cache = await caches.open(RUNTIME);
+      cache.put(request, net.clone());
+    }
+    return net;
+  } catch (e) {
+    const cache = await caches.open(RUNTIME);
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    throw e;
+  }
 }
 
 self.addEventListener("fetch", (event) => {
@@ -93,10 +112,19 @@ self.addEventListener("fetch", (event) => {
     fullUrl.includes("advertisement") ||
     (API_BASE && fullUrl.startsWith(API_BASE));
 
-  // HTML navigation: use cache-first fallback to network
+  const params = url.searchParams;
+  const explicitBypass = params.has("rev") || params.get("force") === "1";
+  const headerBypass = request.headers.get("x-bypass-cache") === "1";
+  const shouldBypass =
+    headerBypass || explicitBypass || Date.now() < BYPASS_CACHE_UNTIL_TS;
+
+  // HTML navigation
   if (request.mode === "navigate") {
     event.respondWith(
       (async () => {
+        if (shouldBypass) {
+          return networkFirst(request);
+        }
         const cacheMatch = await caches.match(request);
         if (cacheMatch) return cacheMatch;
         const preload = await event.preloadResponse;
@@ -112,7 +140,9 @@ self.addEventListener("fetch", (event) => {
 
   // Images and API: SWR
   if (isLikelyImage || isApi) {
-    event.respondWith(staleWhileRevalidate(request));
+    event.respondWith(
+      shouldBypass ? networkFirst(request) : staleWhileRevalidate(request)
+    );
     return;
   }
 });
@@ -170,9 +200,20 @@ self.addEventListener("message", (event) => {
   const data = event.data;
   if (data === "force-refresh") {
     refreshCaches();
+  } else if (data === "purge-caches") {
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      .then(() => {
+        // also purge navigation preload cache indirectly by bumping BYPASS window briefly
+        BYPASS_CACHE_UNTIL_TS = Date.now() + 1000;
+      });
   } else if (data && data.type === "set-config") {
     if (typeof data.apiBase === "string") {
       API_BASE = data.apiBase;
     }
+  } else if (data && data.type === "bypass-cache-ms") {
+    const ms = Number(data.ms) || 0;
+    BYPASS_CACHE_UNTIL_TS = Date.now() + Math.max(0, ms);
   }
 });

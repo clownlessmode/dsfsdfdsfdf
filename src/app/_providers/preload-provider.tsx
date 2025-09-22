@@ -170,7 +170,11 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
           try {
             const res = await fetch(
               `${process.env.NEXT_PUBLIC_API_URL}/product-main`,
-              { credentials: "include", cache: "no-store" }
+              {
+                credentials: "include",
+                cache: "no-store",
+                headers: { "x-bypass-cache": "1" },
+              }
             );
             if (res.ok) {
               const data = await res.json();
@@ -192,11 +196,27 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
         setIsWalkthroughRunning(true);
         try {
           localStorage.setItem("foodcort_walkthrough_running", "true");
+          // Clear local preload cache to force fresh data on walkthrough
+          localStorage.removeItem("foodcort_preload_cache");
+          localStorage.removeItem("foodcort_preload_complete");
+        } catch {}
+
+        // Tell SW to purge caches and bypass for the duration of the walkthrough
+        try {
+          if (navigator.serviceWorker?.controller) {
+            navigator.serviceWorker.controller.postMessage("purge-caches");
+            navigator.serviceWorker.controller.postMessage({
+              type: "bypass-cache-ms",
+              ms: Math.max(10000, walkthroughRoutes.length * 2200),
+            });
+          }
         } catch {}
 
         // Walk through each route for ~2 seconds
         for (const path of walkthroughRoutes) {
-          router.push(path);
+          // Ensure network-first by appending a rev param
+          const url = `${path}${path.includes("?") ? "&" : "?"}force=1`;
+          router.push(url);
           setWalkthroughIndex((prev) =>
             Math.min(prev + 1, walkthroughRoutes.length)
           );
