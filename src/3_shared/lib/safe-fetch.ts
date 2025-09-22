@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Безопасный парсер JSON ответов от API
  * Предотвращает ошибки "Unexpected end of JSON input" и "Body is unusable"

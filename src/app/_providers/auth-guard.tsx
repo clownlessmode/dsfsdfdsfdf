@@ -22,7 +22,7 @@ export function TerminalAuthGuard({ children }: Props) {
         return entries[0].type === "reload";
       }
       // legacy fallback
-      // @ts-ignore
+
       return performance?.navigation?.type === 1;
     } catch {
       return false;
