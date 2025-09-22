@@ -119,6 +119,14 @@ export const InitialWalkthroughProvider: React.FC<
 
     const run = async () => {
       setIsActive(true);
+      // Устанавливаем флаг прогрева в localStorage для предотвращения редиректов
+      try {
+        localStorage.setItem("foodcort_walkthrough_running", "true");
+      } catch {}
+
+      // Устанавливаем начальное значение totalSteps для корректного отображения
+      setTotalSteps(3); // Минимум 3 начальных шага
+
       let stepIndex = 0;
 
       try {
@@ -174,8 +182,8 @@ export const InitialWalkthroughProvider: React.FC<
         categoryPaths.forEach(add);
         productPaths.forEach(add);
 
-        // Устанавливаем общее количество шагов (3 начальных + количество страниц для прогрева)
-        setTotalSteps(3 + targets.length);
+        // Обновляем общее количество шагов (3 начальных + количество страниц для прогрева + возврат на исходную страницу)
+        setTotalSteps(3 + targets.length + 1);
 
         const originalPath = originalPathRef.current ?? "/";
 
@@ -202,6 +210,10 @@ export const InitialWalkthroughProvider: React.FC<
         }
       } finally {
         setIsActive(false);
+        // Убираем флаг прогрева из localStorage
+        try {
+          localStorage.removeItem("foodcort_walkthrough_running");
+        } catch {}
       }
     };
 
