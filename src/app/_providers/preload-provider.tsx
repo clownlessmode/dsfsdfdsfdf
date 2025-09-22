@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useRef,
 } from "react";
 import { usePreloadResources } from "@shared/lib/use-preload-resources";
 import { PreloadScreen } from "@shared/ui/preload-screen";
@@ -50,6 +51,7 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
   const [isWalkthroughRunning, setIsWalkthroughRunning] = useState(false);
   const [walkthroughIndex, setWalkthroughIndex] = useState(0);
   const [walkthroughTotal, setWalkthroughTotal] = useState(0);
+  const hasRunRef = useRef(false);
 
   const {
     startPreload: startPreloadResources,
@@ -120,16 +122,14 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
     }
   }, [authorized, isPreloadComplete, isPreloading, startPreload]);
 
-  // One-time first-run walkthrough: visit key routes for 2s each, then go home
+  // Walkthrough on each page load: visit key routes for 2s each, then go home
   useEffect(() => {
     if (!authorized) return;
     if (!isPreloadComplete || isPreloading) return;
+    if (hasRunRef.current) return; // prevent multiple runs within the same load
+    hasRunRef.current = true;
 
     try {
-      const flagKey = "foodcort_first_walkthrough_done";
-      const alreadyDone = localStorage.getItem(flagKey) === "true";
-      if (alreadyDone) return;
-
       const run = async () => {
         // Build route list: static pages + product pages
         const staticRoutes: string[] = [
@@ -183,7 +183,6 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
 
         // Finish on home page
         router.push("/");
-        localStorage.setItem(flagKey, "true");
         setIsWalkthroughRunning(false);
       };
 
