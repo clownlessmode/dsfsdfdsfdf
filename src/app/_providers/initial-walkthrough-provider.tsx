@@ -30,7 +30,8 @@ export const InitialWalkthroughProvider: React.FC<
 > = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
-  const authorized = useTerminalAuth((s) => s.authorized);
+  // keep store subscription to ensure auth state is hydrated before warmup
+  useTerminalAuth((s) => s.authorized);
 
   const [isActive, setIsActive] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -59,8 +60,6 @@ export const InitialWalkthroughProvider: React.FC<
   useEffect(() => {
     // Do not run on login page
     if (pathname?.startsWith("/init")) return;
-    // Do not run if not authorized to avoid hitting auth flows
-    if (!authorized) return;
     if (!isReload) return;
     if (hasRunRef.current) return;
 
