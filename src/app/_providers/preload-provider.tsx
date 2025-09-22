@@ -54,6 +54,7 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
     categories,
     products,
     advertisements,
+    backgroundRefresh,
   } = usePreloadResources();
 
   const startPreload = useCallback(() => {
@@ -85,6 +86,18 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
       localStorage.setItem("foodcort_preload_complete", "true");
     }
   }, [isComplete, isPreloading, minTimeElapsed]);
+
+  // Периодическое обновление каждые 30 минут в фоне
+  useEffect(() => {
+    const REFRESH_MS = 30 * 60 * 1000;
+    const id = setInterval(() => {
+      backgroundRefresh();
+      if (navigator.serviceWorker?.controller) {
+        navigator.serviceWorker.controller.postMessage("force-refresh");
+      }
+    }, REFRESH_MS);
+    return () => clearInterval(id);
+  }, [backgroundRefresh]);
 
   // Автоматически запускаем предзагрузку после авторизации (только один раз)
   useEffect(() => {

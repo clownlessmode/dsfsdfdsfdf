@@ -107,7 +107,7 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40"
+              className="fixed inset-0 z-40 shadow-2xl"
               onClick={() => setIsIdleDialogOpen(false)}
             >
               <motion.div
