@@ -190,10 +190,11 @@ export const InitialWalkthroughProvider: React.FC<
         basePaths.forEach(add);
         productPaths.forEach(add);
 
-        // Обновляем общее количество шагов (3 начальных + количество страниц для прогрева + возврат на исходную страницу)
-        setTotalSteps(3 + targets.length + 1);
+        // Обновляем общее количество шагов (3 начальных + количество страниц для прогрева + переход на главный экран, если мы не на нём)
+        const returnExtra = window.location.pathname === "/" ? 0 : 1;
+        setTotalSteps(3 + targets.length + returnExtra);
 
-        const originalPath = originalPathRef.current ?? "/";
+        // По финалу всегда уходим на главную
 
         // Prefetch all targets to reduce blank screens on navigation
         try {
@@ -213,15 +214,15 @@ export const InitialWalkthroughProvider: React.FC<
             await waitForPath(path, 6000);
           }
           // Стоим 2 секунды на каждой странице
-          await delay(2000);
+          await delay(1400);
         }
 
-        // Возврат на исходную страницу
-        if (window.location.pathname !== originalPath) {
-          setCurrentAction("Возврат на исходную страницу...");
+        // Переход на главный экран после завершения прогрева
+        if (window.location.pathname !== "/") {
+          setCurrentAction("Переход на главный экран...");
           setCurrentIndex(++stepIndex);
-          router.push(originalPath, { scroll: false });
-          await waitForPath(originalPath, 6000);
+          router.push("/", { scroll: false });
+          await waitForPath("/", 6000);
         }
       } finally {
         setIsActive(false);
