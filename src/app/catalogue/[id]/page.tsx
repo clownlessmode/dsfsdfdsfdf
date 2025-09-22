@@ -12,14 +12,13 @@ async function getProduct(id: number) {
         credentials: "include",
       }
     );
-    console.log(response.json);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    console.log(response.json);
-
     const data = await response.json();
+    console.log(data);
+
     return data.data || data;
   } catch (error) {
     console.error(`Failed to fetch product ${id}:`, error);
@@ -36,12 +35,12 @@ async function getAllProductIds() {
         credentials: "include",
       }
     );
-    console.log(response.json);
+    const data = await response.json();
+    console.log(data);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data = await response.json();
     return data.data || data;
   } catch (error) {
     console.error("Failed to fetch products:", error);
