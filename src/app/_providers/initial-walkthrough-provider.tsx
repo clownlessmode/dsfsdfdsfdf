@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -34,7 +35,7 @@ export const InitialWalkthroughProvider: React.FC<
         return entries[0].type === "reload";
       }
       // legacy fallback
-      // @ts-ignore
+
       return performance?.navigation?.type === 1;
     } catch {
       return false;
