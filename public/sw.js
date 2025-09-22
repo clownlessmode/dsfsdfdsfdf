@@ -1,7 +1,7 @@
 // Basic service worker for aggressive caching and periodic refresh
 // Precache core shell and static assets
 const BASE_PATH = "/foodcord-terminal";
-const VERSION = "v1";
+const VERSION = "v2";
 const PRECACHE = `precache-${VERSION}`;
 const RUNTIME = `runtime-${VERSION}`;
 const ROUTES_TO_PRECACHE = [
@@ -93,25 +93,56 @@ self.addEventListener("fetch", (event) => {
     fullUrl.includes("advertisement") ||
     (API_BASE && fullUrl.startsWith(API_BASE));
 
-  // HTML navigation: use cache-first fallback to network
+  // HTML navigation: network-first with cache fallback to avoid stale HTML on reload
   if (request.mode === "navigate") {
     event.respondWith(
       (async () => {
-        const cacheMatch = await caches.match(request);
-        if (cacheMatch) return cacheMatch;
-        const preload = await event.preloadResponse;
-        if (preload) return preload;
-        const net = await fetch(request);
-        const copy = net.clone();
-        caches.open(RUNTIME).then((cache) => cache.put(request, copy));
-        return net;
+        try {
+          const net = await fetch(request, { cache: "no-store" });
+          const copy = net.clone();
+          caches.open(RUNTIME).then((cache) => cache.put(request, copy));
+          return net;
+        } catch {
+          const cacheMatch = await caches.match(request);
+          if (cacheMatch) return cacheMatch;
+          const preload = await event.preloadResponse;
+          if (preload) return preload;
+          return new Response("Offline", {
+            status: 503,
+            statusText: "Offline",
+          });
+        }
       })()
     );
     return;
   }
 
-  // Images and API: SWR
-  if (isLikelyImage || isApi) {
+  // API: network-first so reloads get fresh data; cache as fallback
+  if (isApi) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(RUNTIME);
+        try {
+          const res = await fetch(request, {
+            cache: "no-store",
+            credentials: "include",
+          });
+          if (res && res.status === 200) {
+            cache.put(request, res.clone());
+          }
+          return res;
+        } catch {
+          const cached = await cache.match(request);
+          if (cached) return cached;
+          throw new Error("Network error and no cache available");
+        }
+      })()
+    );
+    return;
+  }
+
+  // Images: SWR
+  if (isLikelyImage) {
     event.respondWith(staleWhileRevalidate(request));
     return;
   }
