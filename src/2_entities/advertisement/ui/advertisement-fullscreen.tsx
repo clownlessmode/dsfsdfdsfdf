@@ -3,7 +3,7 @@
 import { Skeleton } from "@shared/ui/skeleton";
 import NextImage from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 
 import {
   DEFAULT_IMAGE_DURATION_SEC,
@@ -21,6 +21,27 @@ export const AdvertisementFullscreen = ({
   advertisements,
 }: AdvertisementFullscreenProps) => {
   const ads = useMemo(() => advertisements ?? [], [advertisements]);
+
+  // Build a lightweight signature that changes when ads list/urls change
+  const adsVersion = useMemo(() => {
+    try {
+      const key = ads.map((a) => `${a.id}:${a.url}`).join("|");
+      let hash = 0;
+      for (let i = 0; i < key.length; i++) {
+        // simple 32-bit hash
+        hash = (hash << 5) - hash + key.charCodeAt(i);
+        hash |= 0;
+      }
+      return Math.abs(hash).toString(36);
+    } catch {
+      return "1";
+    }
+  }, [ads]);
+
+  const withRev = useCallback(
+    (url: string) => `${url}${url.includes("?") ? "&" : "?"}rev=${adsVersion}`,
+    [adsVersion]
+  );
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [readyMap, setReadyMap] = useState<ReadyMap>({});
@@ -54,7 +75,7 @@ export const AdvertisementFullscreen = ({
 
   const preloadImage = (ad: IAdvertisement) => {
     const img = new window.Image();
-    img.src = ad.url;
+    img.src = withRev(ad.url);
     img.decoding = "async";
     img.onload = () => {
       const duration = ad.seconds ?? DEFAULT_IMAGE_DURATION_SEC;
@@ -71,7 +92,7 @@ export const AdvertisementFullscreen = ({
 
   const preloadVideo = (ad: IAdvertisement) => {
     const video = document.createElement("video");
-    video.src = ad.url;
+    video.src = withRev(ad.url);
     video.preload = "auto";
     video.muted = true;
     video.playsInline = true;
@@ -205,7 +226,7 @@ export const AdvertisementFullscreen = ({
             >
               {getFileType(currentAd.url) === "image" ? (
                 <NextImage
-                  src={currentAd.url}
+                  src={withRev(currentAd.url)}
                   alt="advertisement"
                   width={1080}
                   height={1920}
@@ -215,7 +236,7 @@ export const AdvertisementFullscreen = ({
               ) : (
                 <video
                   key={currentAd.id}
-                  src={currentAd.url}
+                  src={withRev(currentAd.url)}
                   className="w-full h-full object-cover"
                   autoPlay
                   muted
@@ -233,7 +254,7 @@ export const AdvertisementFullscreen = ({
           <div className="absolute inset-0 opacity-0 pointer-events-none">
             {getFileType(nextAd.url) === "image" ? (
               <NextImage
-                src={nextAd.url}
+                src={withRev(nextAd.url)}
                 alt="advertisement-next"
                 width={1080}
                 height={1920}
@@ -242,7 +263,7 @@ export const AdvertisementFullscreen = ({
             ) : (
               <video
                 key={nextAd.id}
-                src={nextAd.url}
+                src={withRev(nextAd.url)}
                 className="w-full h-full object-cover"
                 muted
                 playsInline

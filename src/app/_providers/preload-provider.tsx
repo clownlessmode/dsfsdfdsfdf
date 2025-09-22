@@ -136,6 +136,7 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
           "/cart",
           "/order",
           "/loyal",
+          "/", // splash/ads to refresh banner-main
         ];
 
         let productRoutes = (products || [])
@@ -164,7 +165,27 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
           }
         }
 
-        const walkthroughRoutes = [...staticRoutes, ...productRoutes];
+        // As a last resort, try fetching product IDs directly
+        if (productRoutes.length === 0) {
+          try {
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/product-main`,
+              { credentials: "include", cache: "no-store" }
+            );
+            if (res.ok) {
+              const data = await res.json();
+              const list = Array.isArray(data?.data) ? data.data : data;
+              productRoutes = (list || [])
+                .map((p: { id?: number | string }) =>
+                  p && typeof p.id !== "undefined" ? `/catalogue/${p.id}` : null
+                )
+                .filter((v: unknown): v is string => typeof v === "string");
+            }
+          } catch {}
+        }
+
+        const filtered = staticRoutes.filter((p) => p !== "/login");
+        const walkthroughRoutes = [...filtered, ...productRoutes];
 
         setWalkthroughIndex(0);
         setWalkthroughTotal(walkthroughRoutes.length);
