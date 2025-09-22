@@ -153,7 +153,7 @@ const OrderContent = () => {
           transition: { duration: 0.2 },
         }}
       >
-        {orderId ? orderId.slice(-6) : ""}
+        {orderId ? orderId.slice(-3) : ""}
       </motion.h1>
 
       {/* Карточка с инструкцией */}
@@ -205,7 +205,7 @@ const OrderContent = () => {
             ease: "easeOut",
           }}
         >
-          Запомни номер заказа или отсканируй QR-код
+          Запомни номер заказа или сфотографируй QR-код
         </motion.h1>
 
         <motion.h1

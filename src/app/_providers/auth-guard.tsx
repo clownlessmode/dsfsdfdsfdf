@@ -15,6 +15,13 @@ export function TerminalAuthGuard({ children }: Props) {
   const router = useRouter();
 
   useEffect(() => {
+    // Skip redirects while walkthrough is running
+    try {
+      if (localStorage.getItem("foodcort_walkthrough_running") === "true") {
+        return;
+      }
+    } catch {}
+
     // If not authorized, always push to /init
     if (!authorized && pathname !== "/init") {
       router.replace("/init");
