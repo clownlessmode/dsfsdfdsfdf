@@ -15,7 +15,7 @@ const getAdvertisements = async () => {
     );
     const data = await response.json();
     console.log(data);
-    return response.json();
+    return data;
   } catch (error) {
     console.error("Failed to fetch advertisements:", error);
     return { data: [], success: false };
