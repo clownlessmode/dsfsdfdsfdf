@@ -3,15 +3,22 @@ import React from "react";
 import CatalogueBrowser from "./catalogue-browser";
 import { IProduct } from "@entities/product";
 
-export const dynamic = "force-static";
-export const revalidate = 3600; // 1 hour
+export const dynamic = "force-dynamic";
+export const revalidate = 0; // No caching
 
 const getProducts = async (): Promise<IProduct[]> => {
   try {
+    const timestamp = Date.now();
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/product-main`,
+      `${process.env.NEXT_PUBLIC_API_URL}/product-main?_cb=${timestamp}&_force_reload=true`,
       {
         credentials: "include",
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
       }
     );
 
@@ -27,9 +34,19 @@ const getProducts = async (): Promise<IProduct[]> => {
 
 const getCategories = async (): Promise<ICategoryResponse> => {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
-      credentials: "include",
-    });
+    const timestamp = Date.now();
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/groups?_cb=${timestamp}&_force_reload=true`,
+      {
+        credentials: "include",
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
     const data = await response.json();
     console.log(data);
 

@@ -53,10 +53,17 @@ export const InitialWalkthroughProvider: React.FC<
 
     const fetchCategories = async (): Promise<CategoryGroup[]> => {
       try {
+        const timestamp = Date.now();
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/groups`,
+          `${process.env.NEXT_PUBLIC_API_URL}/groups?_cb=${timestamp}&_force_reload=true`,
           {
             credentials: "include",
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache, no-store, must-revalidate",
+              Pragma: "no-cache",
+              Expires: "0",
+            },
           }
         );
         const data = await response.json();

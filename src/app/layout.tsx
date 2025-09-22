@@ -8,6 +8,7 @@ import {
   SplashProvider,
   TerminalAuthGuard,
   InitialWalkthroughProvider,
+  ForceReloadProvider,
 } from "./_providers";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -41,9 +42,11 @@ export default function RootLayout({
         >
           <SplashProvider>
             <TerminalAuthGuard>
-              <InitialWalkthroughProvider>
-                {children}
-              </InitialWalkthroughProvider>
+              <ForceReloadProvider>
+                <InitialWalkthroughProvider>
+                  {children}
+                </InitialWalkthroughProvider>
+              </ForceReloadProvider>
             </TerminalAuthGuard>
           </SplashProvider>
         </body>
