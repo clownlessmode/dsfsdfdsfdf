@@ -120,8 +120,6 @@ export const InitialWalkthroughProvider: React.FC<
     const run = async () => {
       setIsActive(true);
       let stepIndex = 0;
-      const totalStepsCount = 4; // Общее количество шагов
-      setTotalSteps(totalStepsCount);
 
       try {
         // Шаг 1: Очистка кеша браузера
@@ -157,12 +155,10 @@ export const InitialWalkthroughProvider: React.FC<
         await preloadImages(imageUrls);
         await delay(1000);
 
-        // Шаг 4: Прогрев страниц
-        setCurrentAction("Прогрев страниц...");
-        setCurrentIndex(++stepIndex);
-
+        // Подготавливаем список всех страниц для прогрева
         const basePaths: string[] = ["/", "/catalogue", "/cart", "/order"];
         const categoryPaths = categories.map((c) => `/catalogue/${c.id}`);
+        const productPaths = products.map((p) => `/catalogue/${p.id}`);
 
         const seen = new Set<string>();
         const targets: string[] = [];
@@ -176,11 +172,19 @@ export const InitialWalkthroughProvider: React.FC<
 
         basePaths.forEach(add);
         categoryPaths.forEach(add);
+        productPaths.forEach(add);
+
+        // Устанавливаем общее количество шагов (3 начальных + количество страниц для прогрева)
+        setTotalSteps(3 + targets.length);
 
         const originalPath = originalPathRef.current ?? "/";
 
+        // Прогрев каждой страницы как отдельный шаг
         for (let i = 0; i < targets.length; i++) {
           const path = targets[i];
+          setCurrentAction(`Прогрев страницы: ${path}`);
+          setCurrentIndex(++stepIndex);
+
           if (window.location.pathname !== path) {
             router.push(path, { scroll: false });
             await waitForPath(path, 6000);
@@ -191,6 +195,8 @@ export const InitialWalkthroughProvider: React.FC<
 
         // Возврат на исходную страницу
         if (window.location.pathname !== originalPath) {
+          setCurrentAction("Возврат на исходную страницу...");
+          setCurrentIndex(++stepIndex);
           router.push(originalPath, { scroll: false });
           await waitForPath(originalPath, 6000);
         }
