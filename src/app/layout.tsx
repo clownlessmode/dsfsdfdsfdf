@@ -9,7 +9,6 @@ import {
   TerminalAuthGuard,
   InitialWalkthroughProvider,
 } from "./_providers";
-import { CacheInfo } from "@shared/ui/cache-info";
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-geist-sans",
@@ -44,7 +43,6 @@ export default function RootLayout({
             <TerminalAuthGuard>
               <InitialWalkthroughProvider>
                 {children}
-                <CacheInfo />
               </InitialWalkthroughProvider>
             </TerminalAuthGuard>
           </SplashProvider>
