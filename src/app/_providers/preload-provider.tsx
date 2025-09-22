@@ -47,6 +47,9 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const { authorized } = useTerminalAuth();
   const router = useRouter();
+  const [isWalkthroughRunning, setIsWalkthroughRunning] = useState(false);
+  const [walkthroughIndex, setWalkthroughIndex] = useState(0);
+  const [walkthroughTotal, setWalkthroughTotal] = useState(0);
 
   const {
     startPreload: startPreloadResources,
@@ -128,7 +131,7 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
       if (alreadyDone) return;
 
       const run = async () => {
-        // Build route list: static pages + dynamic catalogue categories
+        // Build route list: static pages + product pages
         const staticRoutes: string[] = [
           "/init",
           "/catalogue",
@@ -137,22 +140,22 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
           "/loyal",
         ];
 
-        let categoryRoutes = (categories || [])
-          .map((c) =>
-            c && typeof c.id !== "undefined" ? `/catalogue/${c.id}` : null
+        let productRoutes = (products || [])
+          .map((p) =>
+            p && typeof p.id !== "undefined" ? `/catalogue/${p.id}` : null
           )
           .filter((v): v is string => Boolean(v));
 
-        if (categoryRoutes.length === 0) {
+        if (productRoutes.length === 0) {
           try {
             const cachedRaw = localStorage.getItem("foodcort_preload_cache");
             if (cachedRaw) {
               const cached = JSON.parse(cachedRaw);
-              if (cached && Array.isArray(cached.categories)) {
-                categoryRoutes = cached.categories
-                  .map((c: { id?: number | string }) =>
-                    c && typeof c.id !== "undefined"
-                      ? `/catalogue/${c.id}`
+              if (cached && Array.isArray(cached.products)) {
+                productRoutes = cached.products
+                  .map((p: { id?: number | string }) =>
+                    p && typeof p.id !== "undefined"
+                      ? `/catalogue/${p.id}`
                       : null
                   )
                   .filter((v: unknown): v is string => typeof v === "string");
@@ -163,24 +166,39 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
           }
         }
 
-        const walkthroughRoutes = [...staticRoutes, ...categoryRoutes];
+        const walkthroughRoutes = [...staticRoutes, ...productRoutes];
+
+        setWalkthroughIndex(0);
+        setWalkthroughTotal(walkthroughRoutes.length);
+        setIsWalkthroughRunning(true);
 
         // Walk through each route for ~2 seconds
         for (const path of walkthroughRoutes) {
           router.push(path);
+          setWalkthroughIndex((prev) =>
+            Math.min(prev + 1, walkthroughRoutes.length)
+          );
           await new Promise((res) => setTimeout(res, 2000));
         }
 
         // Finish on home page
         router.push("/");
         localStorage.setItem(flagKey, "true");
+        setIsWalkthroughRunning(false);
       };
 
       run();
     } catch {
       // ignore errors in walkthrough
     }
-  }, [authorized, isPreloading, isPreloadComplete, router, categories]);
+  }, [
+    authorized,
+    isPreloading,
+    isPreloadComplete,
+    router,
+    categories,
+    products,
+  ]);
 
   const contextValue: PreloadContextType = {
     isPreloading,
@@ -203,7 +221,42 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
           advertisementsCount={advertisements.length}
         />
       ) : (
-        children
+        <>
+          {children}
+          {isWalkthroughRunning && (
+            <div
+              className="fixed inset-0 z-[1000] backdrop-blur-md bg-black/20 flex items-center justify-center"
+              aria-hidden
+            >
+              <div className="bg-white/80 rounded-3xl px-10 py-8 shadow-2xl border border-white/60">
+                <div className="text-3xl font-bold text-center">
+                  Идет первичная настройка
+                </div>
+                <div className="mt-3 text-lg text-center text-muted-foreground">
+                  Пожалуйста, подождите. Разогреваем страницы…
+                </div>
+                <div className="mt-6 h-2 w-[420px] bg-black/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-black/70 transition-all"
+                    style={{
+                      width: `${Math.min(
+                        walkthroughTotal > 0
+                          ? Math.round(
+                              (walkthroughIndex / walkthroughTotal) * 100
+                            )
+                          : 0,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+                <div className="mt-2 text-sm text-center text-muted-foreground">
+                  {walkthroughIndex} / {walkthroughTotal}
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </PreloadContext.Provider>
   );
