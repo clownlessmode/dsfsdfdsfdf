@@ -90,12 +90,40 @@ export const AdvertisementFullscreen = ({
     };
   };
 
-  // Disable video preloading: mark ready immediately with default duration
   const preloadVideo = (ad: IAdvertisement) => {
-    const duration = ad.seconds ?? DEFAULT_VIDEO_DURATION_SEC;
-    setDurationIfMissing(ad.id, duration);
-    // Do not request network; mark as ready so slideshow proceeds
-    markReady(ad.id);
+    const video = document.createElement("video");
+    video.src = withRev(ad.url);
+    video.preload = "auto";
+    video.muted = true;
+    video.playsInline = true;
+    const onLoadedMetadata = () => {
+      const metaDuration =
+        isFinite(video.duration) && video.duration > 0
+          ? video.duration
+          : DEFAULT_VIDEO_DURATION_SEC;
+      const duration = ad.seconds ?? metaDuration;
+      setDurationIfMissing(ad.id, duration);
+    };
+    const onCanPlayThrough = () => {
+      markReady(ad.id);
+      cleanup();
+    };
+    const onError = () => {
+      const duration = ad.seconds ?? DEFAULT_VIDEO_DURATION_SEC;
+      setDurationIfMissing(ad.id, duration);
+      markReady(ad.id);
+      cleanup();
+    };
+    const cleanup = () => {
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      video.removeEventListener("canplaythrough", onCanPlayThrough);
+      video.removeEventListener("error", onError);
+    };
+    video.addEventListener("loadedmetadata", onLoadedMetadata);
+    video.addEventListener("canplaythrough", onCanPlayThrough);
+    video.addEventListener("error", onError);
+    // kick off network
+    video.load();
   };
 
   const ensurePreload = (ad?: IAdvertisement) => {
@@ -214,7 +242,7 @@ export const AdvertisementFullscreen = ({
                   muted
                   playsInline
                   controls={false}
-                  preload="none"
+                  preload="auto"
                 />
               )}
             </motion.div>
@@ -240,7 +268,7 @@ export const AdvertisementFullscreen = ({
                 muted
                 playsInline
                 controls={false}
-                preload="none"
+                preload="auto"
               />
             )}
           </div>

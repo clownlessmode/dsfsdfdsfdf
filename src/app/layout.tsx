@@ -7,7 +7,7 @@ import {
   QueryProvider,
   SplashProvider,
   TerminalAuthGuard,
-  InitialWalkthroughProvider,
+  PreloadProvider,
 } from "./_providers";
 import { CacheInfo } from "@shared/ui/cache-info";
 
@@ -42,10 +42,10 @@ export default function RootLayout({
         >
           <SplashProvider>
             <TerminalAuthGuard>
-              <InitialWalkthroughProvider>
+              <PreloadProvider>
                 {children}
                 <CacheInfo />
-              </InitialWalkthroughProvider>
+              </PreloadProvider>
             </TerminalAuthGuard>
           </SplashProvider>
         </body>
