@@ -13,11 +13,25 @@ const ROUTES_TO_PRECACHE = [
   `${BASE_PATH}/loyal`,
 ];
 
+// optional API base, can be configured by client
+let API_BASE = null;
+
 const STATIC_ASSETS = [
   `${BASE_PATH}/assets/camera.png`,
   `${BASE_PATH}/assets/cta-button.png`,
   `${BASE_PATH}/receiving-method/in-a-bag.png`,
   `${BASE_PATH}/receiving-method/on-the-plate.png`,
+  // known demo images shipped with the app
+  `${BASE_PATH}/products/blini.png`,
+  `${BASE_PATH}/products/cake.png`,
+  `${BASE_PATH}/products/combo.png`,
+  `${BASE_PATH}/products/fries.png`,
+  `${BASE_PATH}/products/pizza2.png`,
+  `${BASE_PATH}/products/pizzaa.png`,
+  `${BASE_PATH}/products/salad.png`,
+  `${BASE_PATH}/products/souse.png`,
+  `${BASE_PATH}/products/sushi.png`,
+  `${BASE_PATH}/categories/1g.png`,
 ];
 
 self.addEventListener("install", (event) => {
@@ -41,6 +55,10 @@ self.addEventListener("activate", (event) => {
         )
       )
   );
+  // enable navigation preload if supported to speed up navigations
+  if (self.registration.navigationPreload) {
+    self.registration.navigationPreload.enable().catch(() => {});
+  }
   self.clients.claim();
 });
 
@@ -63,33 +81,37 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Only handle same-origin and known remote images
-  const isSameOrigin = url.origin === self.location.origin;
-  const isImage = request.destination === "image";
+  // Identify images and APIs (same-origin or remote)
+  const isImageDest = request.destination === "image";
+  const isLikelyImage =
+    isImageDest || /\.(png|jpg|jpeg|webp|gif|svg)$/i.test(url.pathname);
+  const fullUrl = `${url.origin}${url.pathname}`;
   const isApi =
     url.pathname.startsWith("/api/") ||
-    url.pathname.includes("product-main") ||
-    url.pathname.includes("groups") ||
-    url.pathname.includes("advertisement");
+    fullUrl.includes("product-main") ||
+    fullUrl.includes("groups") ||
+    fullUrl.includes("advertisement") ||
+    (API_BASE && fullUrl.startsWith(API_BASE));
 
   // HTML navigation: use cache-first fallback to network
   if (request.mode === "navigate") {
     event.respondWith(
-      caches.match(request).then(
-        (cached) =>
-          cached ||
-          fetch(request).then((res) => {
-            const copy = res.clone();
-            caches.open(RUNTIME).then((cache) => cache.put(request, copy));
-            return res;
-          })
-      )
+      (async () => {
+        const cacheMatch = await caches.match(request);
+        if (cacheMatch) return cacheMatch;
+        const preload = await event.preloadResponse;
+        if (preload) return preload;
+        const net = await fetch(request);
+        const copy = net.clone();
+        caches.open(RUNTIME).then((cache) => cache.put(request, copy));
+        return net;
+      })()
     );
     return;
   }
 
   // Images and API: SWR
-  if ((isSameOrigin && isImage) || isApi) {
+  if (isLikelyImage || isApi) {
     event.respondWith(staleWhileRevalidate(request));
     return;
   }
@@ -111,13 +133,20 @@ async function refreshCaches() {
     );
 
     // Refresh API endpoints
-    const apiEndpoints = [
+    const defaultApi = [
       `${self.origin}/api/groups`,
       `${self.origin}/api/product-main`,
       `${self.origin}/api/advertisement`,
     ];
+    const make = (path) =>
+      API_BASE
+        ? `${API_BASE.replace(/\/$/, "")}/${path.replace(/^\//, "")}`
+        : null;
+    const apiEndpoints = API_BASE
+      ? [make("groups"), make("product-main"), make("advertisement")]
+      : defaultApi;
     await Promise.all(
-      apiEndpoints.map(async (url) => {
+      apiEndpoints.filter(Boolean).map(async (url) => {
         try {
           const res = await fetch(url, {
             cache: "no-store",
@@ -138,7 +167,12 @@ setInterval(() => {
 
 // Allow clients to trigger a manual refresh
 self.addEventListener("message", (event) => {
-  if (event.data === "force-refresh") {
+  const data = event.data;
+  if (data === "force-refresh") {
     refreshCaches();
+  } else if (data && data.type === "set-config") {
+    if (typeof data.apiBase === "string") {
+      API_BASE = data.apiBase;
+    }
   }
 });

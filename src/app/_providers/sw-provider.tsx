@@ -37,6 +37,10 @@ export const SwProvider: FC<PropsWithChildren> = ({ children }) => {
           `${BASE_PATH}/sw.js`
         );
         if (registration.active) {
+          const apiBase = process.env.NEXT_PUBLIC_API_URL;
+          if (apiBase) {
+            registration.active.postMessage({ type: "set-config", apiBase });
+          }
           registration.active.postMessage("force-refresh");
         }
       } catch (e) {
