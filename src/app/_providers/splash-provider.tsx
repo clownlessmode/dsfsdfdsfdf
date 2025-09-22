@@ -131,7 +131,7 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
                   damping: 25,
                   stiffness: 300,
                 }}
-                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-[60px] z-50 p-6 text-center flex flex-col"
+                className="fixed shadow-2xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-[60px] z-50 p-6 text-center flex flex-col"
                 style={{
                   backgroundColor: "white",
                   borderRadius: "60px",

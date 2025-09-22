@@ -10,6 +10,7 @@ import React, {
 import { usePreloadResources } from "@shared/lib/use-preload-resources";
 import { PreloadScreen } from "@shared/ui/preload-screen";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
+import { useRouter } from "next/navigation";
 
 interface PreloadContextType {
   isPreloading: boolean;
@@ -45,6 +46,7 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
   });
   const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const { authorized } = useTerminalAuth();
+  const router = useRouter();
 
   const {
     startPreload: startPreloadResources,
@@ -114,6 +116,71 @@ export const PreloadProvider: React.FC<PreloadProviderProps> = ({
       }
     }
   }, [authorized, isPreloadComplete, isPreloading, startPreload]);
+
+  // One-time first-run walkthrough: visit key routes for 2s each, then go home
+  useEffect(() => {
+    if (!authorized) return;
+    if (!isPreloadComplete || isPreloading) return;
+
+    try {
+      const flagKey = "foodcort_first_walkthrough_done";
+      const alreadyDone = localStorage.getItem(flagKey) === "true";
+      if (alreadyDone) return;
+
+      const run = async () => {
+        // Build route list: static pages + dynamic catalogue categories
+        const staticRoutes: string[] = [
+          "/init",
+          "/catalogue",
+          "/cart",
+          "/order",
+          "/loyal",
+        ];
+
+        let categoryRoutes = (categories || [])
+          .map((c) =>
+            c && typeof c.id !== "undefined" ? `/catalogue/${c.id}` : null
+          )
+          .filter((v): v is string => Boolean(v));
+
+        if (categoryRoutes.length === 0) {
+          try {
+            const cachedRaw = localStorage.getItem("foodcort_preload_cache");
+            if (cachedRaw) {
+              const cached = JSON.parse(cachedRaw);
+              if (cached && Array.isArray(cached.categories)) {
+                categoryRoutes = cached.categories
+                  .map((c: { id?: number | string }) =>
+                    c && typeof c.id !== "undefined"
+                      ? `/catalogue/${c.id}`
+                      : null
+                  )
+                  .filter((v: unknown): v is string => typeof v === "string");
+              }
+            }
+          } catch {
+            // ignore cache parse errors
+          }
+        }
+
+        const walkthroughRoutes = [...staticRoutes, ...categoryRoutes];
+
+        // Walk through each route for ~2 seconds
+        for (const path of walkthroughRoutes) {
+          router.push(path);
+          await new Promise((res) => setTimeout(res, 2000));
+        }
+
+        // Finish on home page
+        router.push("/");
+        localStorage.setItem(flagKey, "true");
+      };
+
+      run();
+    } catch {
+      // ignore errors in walkthrough
+    }
+  }, [authorized, isPreloading, isPreloadComplete, router, categories]);
 
   const contextValue: PreloadContextType = {
     isPreloading,
