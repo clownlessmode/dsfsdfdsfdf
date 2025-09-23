@@ -217,7 +217,6 @@ const CartPage = () => {
                 color="#E40046"
                 strokeWidth={2}
               />
-              Оплатить{" "}
               {cart?.items
                 .reduce((acc, item) => acc + item.totalPrice, 0)
                 .toFixed(2)}

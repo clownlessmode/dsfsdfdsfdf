@@ -36,7 +36,10 @@ export const ProductConfigurator = ({ product }: Props) => {
   }, [product, selectedTypeId]);
 
   useEffect(() => {
-    const extras = product?.extras ?? [];
+    const raw = product?.extras ?? [];
+    const extras = raw.filter(
+      (e) => e && typeof e.id === "number" && (e.name || e.image)
+    );
     if (extras.length === 0) return;
     setextrasCount((prev) => {
       if (Object.keys(prev).length > 0) return prev;
@@ -90,7 +93,8 @@ export const ProductConfigurator = ({ product }: Props) => {
       <div className="inset-0 absolute -z-10">
         <Background color={product.color ?? "#ffffff"} />
       </div>
-      {product.extras && product.extras.length > 0 && (
+      {(product.extras?.filter((e) => e && (e.name || e.image)).length ?? 0) >
+        0 && (
         <MakeSweet
           product={product}
           isOpen={isExtrasOpen}

@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
+import { useSession } from "@entities/session";
 
 interface Props {
   children: React.ReactNode;
@@ -10,6 +11,8 @@ interface Props {
 
 export function TerminalAuthGuard({ children }: Props) {
   const authorized = useTerminalAuth((s) => s.authorized);
+  const { session } = useSession();
+  const idStore = session?.idStore;
 
   const pathname = usePathname();
   const router = useRouter();
@@ -38,15 +41,15 @@ export function TerminalAuthGuard({ children }: Props) {
     } catch {}
     if (isReload) return;
 
-    // If not authorized, always push to /init
-    if (!authorized && pathname !== "/init") {
+    // If not authorized OR store id is missing, push to /init
+    if ((!authorized || !idStore) && pathname !== "/init") {
       router.replace("/init");
     }
-    // If authorized and currently on /init, block access and go back or to root
-    if (authorized && pathname === "/init") {
+    // If fully authorized (and store id present) and currently on /init, go to root
+    if (authorized && idStore && pathname === "/init") {
       router.replace("/");
     }
-  }, [authorized, pathname, router]);
+  }, [authorized, idStore, pathname, router]);
 
   return children;
 }

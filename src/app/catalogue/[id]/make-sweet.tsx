@@ -44,6 +44,14 @@ export const MakeSweet = ({
 }) => {
   const [isRendered, setIsRendered] = React.useState(false);
 
+  // Filter out invalid extras to avoid ghost items
+  const validExtras = React.useMemo(() => {
+    const raw = product.extras ?? [];
+    return raw.filter(
+      (e) => e && typeof e.id === "number" && (e.name || e.image)
+    );
+  }, [product.extras]);
+
   React.useEffect(() => {
     if (isOpen) setIsRendered(true);
   }, [isOpen]);
@@ -127,7 +135,7 @@ export const MakeSweet = ({
   return (
     <>
       <AnimatePresence>
-        {!isOpen && (
+        {!isOpen && validExtras.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -149,30 +157,29 @@ export const MakeSweet = ({
                 ингридиенты по вашему вкусу
               </p>
               <div className="flex flex-row -space-x-[35px]">
-                {product.extras &&
-                  product.extras
-                    .slice(0, 2)
-                    .map((ingredient) => (
+                {validExtras
+                  .slice(0, 2)
+                  .map((ingredient) =>
+                    ingredient.image ? (
                       <NextImage
                         loading="eager"
                         priority={true}
                         key={ingredient.id}
-                        src={ingredient.image ?? null}
+                        src={ingredient.image}
                         alt={ingredient.name ?? ""}
                         className="w-[70px] aspect-square object-cover"
                         width={500}
                         height={500}
                       />
-                    ))}
-                {product.extras &&
-                  product.extras?.length &&
-                  product.extras?.length > 2 && (
-                    <div className="bg-primary rounded-full size-[70px] flex items-center justify-center">
-                      <p className="text-[20px] font-bold mr-2">
-                        +{(product.extras?.length ?? 0) - 2}
-                      </p>
-                    </div>
+                    ) : null
                   )}
+                {validExtras.length > 2 && (
+                  <div className="bg-primary rounded-full size-[70px] flex items-center justify-center">
+                    <p className="text-[20px] font-bold mr-2">
+                      +{validExtras.length - 2}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
@@ -214,7 +221,7 @@ export const MakeSweet = ({
                   initial={false}
                   animate="animate"
                 >
-                  {product.extras && product.extras.length > 0 && (
+                  {validExtras.length > 0 && (
                     <motion.h1
                       className="text-[90px] font-black text-white tracking-tighter font-inter"
                       variants={itemVariants}
@@ -222,12 +229,12 @@ export const MakeSweet = ({
                       Настрой для себя
                     </motion.h1>
                   )}
-                  {product.extras && product.extras.length > 0 && (
+                  {validExtras.length > 0 && (
                     <motion.div
                       className="grid grid-cols-4 gap-4"
                       variants={sectionVariants}
                     >
-                      {product.extras?.map((ingredient) => {
+                      {validExtras.map((ingredient) => {
                         const qty = extrasCount[ingredient.id] ?? 0;
                         const selected = qty > 0;
                         return (
@@ -242,15 +249,17 @@ export const MakeSweet = ({
                             whileHover={{ scale: 1.01 }}
                           >
                             <div className="flex flex-col gap-1">
-                              <NextImage
-                                loading="eager"
-                                priority={true}
-                                src={ingredient.image}
-                                alt={ingredient.name ?? ""}
-                                width={100}
-                                height={100}
-                                className="rounded-[50px] w-full  object-cover"
-                              />
+                              {ingredient.image && (
+                                <NextImage
+                                  loading="eager"
+                                  priority={true}
+                                  src={ingredient.image}
+                                  alt={ingredient.name ?? ""}
+                                  width={100}
+                                  height={100}
+                                  className="rounded-[50px] w-full  object-cover"
+                                />
+                              )}
                               <h3 className="text-[40px] tracking-tighter mt-1 text-white leading-none text-center">
                                 {ingredient.name}
                               </h3>
