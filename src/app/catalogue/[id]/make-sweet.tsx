@@ -149,25 +149,30 @@ export const MakeSweet = ({
                 ингридиенты по вашему вкусу
               </p>
               <div className="flex flex-row -space-x-[35px]">
-                {product.extras?.slice(0, 2).map((ingredient) => (
-                  <NextImage
-                    loading="eager"
-                    priority={true}
-                    key={ingredient.id}
-                    src={ingredient.image ?? null}
-                    alt={ingredient.name ?? ""}
-                    className="w-[70px] aspect-square object-cover"
-                    width={500}
-                    height={500}
-                  />
-                ))}
-                {product.extras?.length && product.extras?.length > 2 && (
-                  <div className="bg-primary rounded-full size-[70px] flex items-center justify-center">
-                    <p className="text-[20px] font-bold mr-2">
-                      +{(product.extras?.length ?? 0) - 2}
-                    </p>
-                  </div>
-                )}
+                {product.extras &&
+                  product.extras
+                    .slice(0, 2)
+                    .map((ingredient) => (
+                      <NextImage
+                        loading="eager"
+                        priority={true}
+                        key={ingredient.id}
+                        src={ingredient.image ?? null}
+                        alt={ingredient.name ?? ""}
+                        className="w-[70px] aspect-square object-cover"
+                        width={500}
+                        height={500}
+                      />
+                    ))}
+                {product.extras &&
+                  product.extras?.length &&
+                  product.extras?.length > 2 && (
+                    <div className="bg-primary rounded-full size-[70px] flex items-center justify-center">
+                      <p className="text-[20px] font-bold mr-2">
+                        +{(product.extras?.length ?? 0) - 2}
+                      </p>
+                    </div>
+                  )}
               </div>
             </div>
           </motion.div>
@@ -209,126 +214,135 @@ export const MakeSweet = ({
                   initial={false}
                   animate="animate"
                 >
-                  <motion.h1
-                    className="text-[90px] font-black text-white tracking-tighter font-inter"
-                    variants={itemVariants}
-                  >
-                    Настрой для себя
-                  </motion.h1>
-                  <motion.div
-                    className="grid grid-cols-4 gap-4"
-                    variants={sectionVariants}
-                  >
-                    {product.extras?.map((ingredient) => {
-                      const qty = extrasCount[ingredient.id] ?? 0;
-                      const selected = qty > 0;
-                      return (
-                        <motion.div
-                          key={ingredient.id}
-                          variants={itemVariants}
-                          className={`flex flex-col justify-between h-[380px] ${
-                            selected ? "bg-black/20" : "bg-black/10"
-                          } backdrop-blur-xl rounded-[50px] p-[25px]`}
-                          onClick={() => handleCardClick(ingredient.id)}
-                          whileTap={{ scale: 0.985 }}
-                          whileHover={{ scale: 1.01 }}
-                        >
-                          <div className="flex flex-col gap-1">
-                            <NextImage
-                              loading="eager"
-                              priority={true}
-                              src={ingredient.image}
-                              alt={ingredient.name ?? ""}
-                              width={100}
-                              height={100}
-                              className="rounded-[50px] w-full  object-cover"
-                            />
-                            <h3 className="text-[40px] tracking-tighter mt-1 text-white leading-none text-center">
-                              {ingredient.name}
-                            </h3>
-                          </div>
-                          <div className="min-h-[56px] flex items-center justify-center">
-                            <AnimatePresence initial={false} mode="wait">
-                              {selected ? (
-                                <motion.div
-                                  key="qty"
-                                  variants={priceQtySwap}
-                                  initial="initial"
-                                  animate="animate"
-                                  exit="exit"
-                                  className="flex flex-row items-center justify-center gap-6"
-                                >
-                                  <button
-                                    className="bg-white/20 rounded-full p-3 text-white"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      decrementQuantity(ingredient.id);
-                                    }}
+                  {product.extras && product.extras.length > 0 && (
+                    <motion.h1
+                      className="text-[90px] font-black text-white tracking-tighter font-inter"
+                      variants={itemVariants}
+                    >
+                      Настрой для себя
+                    </motion.h1>
+                  )}
+                  {product.extras && product.extras.length > 0 && (
+                    <motion.div
+                      className="grid grid-cols-4 gap-4"
+                      variants={sectionVariants}
+                    >
+                      {product.extras?.map((ingredient) => {
+                        const qty = extrasCount[ingredient.id] ?? 0;
+                        const selected = qty > 0;
+                        return (
+                          <motion.div
+                            key={ingredient.id}
+                            variants={itemVariants}
+                            className={`flex flex-col justify-between h-[380px] ${
+                              selected ? "bg-black/20" : "bg-black/10"
+                            } backdrop-blur-xl rounded-[50px] p-[25px]`}
+                            onClick={() => handleCardClick(ingredient.id)}
+                            whileTap={{ scale: 0.985 }}
+                            whileHover={{ scale: 1.01 }}
+                          >
+                            <div className="flex flex-col gap-1">
+                              <NextImage
+                                loading="eager"
+                                priority={true}
+                                src={ingredient.image}
+                                alt={ingredient.name ?? ""}
+                                width={100}
+                                height={100}
+                                className="rounded-[50px] w-full  object-cover"
+                              />
+                              <h3 className="text-[40px] tracking-tighter mt-1 text-white leading-none text-center">
+                                {ingredient.name}
+                              </h3>
+                            </div>
+                            <div className="min-h-[56px] flex items-center justify-center">
+                              <AnimatePresence initial={false} mode="wait">
+                                {selected ? (
+                                  <motion.div
+                                    key="qty"
+                                    variants={priceQtySwap}
+                                    initial="initial"
+                                    animate="animate"
+                                    exit="exit"
+                                    className="flex flex-row items-center justify-center gap-6"
                                   >
-                                    <Minus className="size-[36px]" />
-                                  </button>
-                                  <p className="text-[36px] text-white text-center font-bold min-w-12">
-                                    {qty}
-                                  </p>
-                                  <button
-                                    className="bg-white/20 rounded-full p-3 text-white"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      incrementQuantity(ingredient.id);
-                                    }}
+                                    <button
+                                      className="bg-white/20 rounded-full p-3 text-white"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        decrementQuantity(ingredient.id);
+                                      }}
+                                    >
+                                      <Minus className="size-[36px]" />
+                                    </button>
+                                    <p className="text-[36px] text-white text-center font-bold min-w-12">
+                                      {qty}
+                                    </p>
+                                    <button
+                                      className="bg-white/20 rounded-full p-3 text-white"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        incrementQuantity(ingredient.id);
+                                      }}
+                                    >
+                                      <Plus className="size-[36px]" />
+                                    </button>
+                                  </motion.div>
+                                ) : (
+                                  <motion.p
+                                    key="price"
+                                    variants={priceQtySwap}
+                                    initial="initial"
+                                    animate="animate"
+                                    exit="exit"
+                                    className="text-[36px] text-white text-center font-bold "
                                   >
-                                    <Plus className="size-[36px]" />
-                                  </button>
-                                </motion.div>
-                              ) : (
-                                <motion.p
-                                  key="price"
-                                  variants={priceQtySwap}
-                                  initial="initial"
-                                  animate="animate"
-                                  exit="exit"
-                                  className="text-[36px] text-white text-center font-bold "
-                                >
-                                  {ingredient.price ?? 0}₽
-                                </motion.p>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </motion.div>
-
-                  <motion.h1
-                    className="text-[90px] font-black text-white tracking-tighter font-inter mt-10"
-                    variants={itemVariants}
-                  >
-                    В составе
-                  </motion.h1>
-                  <motion.div
-                    className="flex flex-row flex-wrap gap-4"
-                    variants={sectionVariants}
-                  >
-                    {product.ingredients?.map((ingredient, index) => {
-                      const removed = removedIngredients.has(index);
-                      return (
-                        <motion.button
-                          key={index}
-                          variants={itemVariants}
-                          onClick={() => toggleRemoved(index)}
-                          className={`bg-black/10 backdrop-blur-xl flex items-center rounded-[50px] py-[20px] px-[60px] gap-2 text-white text-[36px] font-semibold tracking-tighter transition-opacity ${
-                            removed ? "opacity-50" : "opacity-100"
-                          }`}
-                          whileTap={{ scale: 0.97 }}
-                        >
-                          <span className={`${removed ? "line-through" : ""}`}>
-                            {ingredient}
-                          </span>
-                          <X className="size-[36px] -mb-1" />
-                        </motion.button>
-                      );
-                    })}
-                  </motion.div>
+                                    {ingredient.price ?? 0}₽
+                                  </motion.p>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                  {product.ingredients && product.ingredients.length > 0 && (
+                    <motion.h1
+                      className="text-[90px] font-black text-white tracking-tighter font-inter mt-10"
+                      variants={itemVariants}
+                    >
+                      В составе
+                    </motion.h1>
+                  )}
+                  {product.ingredients && product.ingredients.length > 0 && (
+                    <motion.div
+                      className="flex flex-row flex-wrap gap-4"
+                      variants={sectionVariants}
+                    >
+                      {product.ingredients?.map((ingredient, index) => {
+                        const removed = removedIngredients.has(index);
+                        return (
+                          <motion.button
+                            key={index}
+                            variants={itemVariants}
+                            onClick={() => toggleRemoved(index)}
+                            className={`bg-black/10 backdrop-blur-xl flex items-center rounded-[50px] py-[20px] px-[60px] gap-2 text-white text-[36px] font-semibold tracking-tighter transition-opacity ${
+                              removed ? "opacity-50" : "opacity-100"
+                            }`}
+                            whileTap={{ scale: 0.97 }}
+                          >
+                            <span
+                              className={`${removed ? "line-through" : ""}`}
+                            >
+                              {ingredient}
+                            </span>
+                            <X className="size-[36px] -mb-1" />
+                          </motion.button>
+                        );
+                      })}
+                    </motion.div>
+                  )}
                 </motion.div>
                 <div className="flex flex-row items-center justify-between w-full absolute bottom-0 left-0 py-[60px] px-[48px]">
                   <Button
