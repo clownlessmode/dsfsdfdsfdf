@@ -9,6 +9,7 @@ import {
   preloadImages,
 } from "@shared/lib/cache-utils";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
+import { useSession } from "@entities/session";
 
 interface InitialWalkthroughProviderProps {
   children: React.ReactNode;
@@ -31,7 +32,9 @@ export const InitialWalkthroughProvider: React.FC<
   const router = useRouter();
   const pathname = usePathname();
   // keep store subscription to ensure auth state is hydrated before warmup
-  useTerminalAuth((s) => s.authorized);
+  const authorized = useTerminalAuth((s) => s.authorized);
+  const { session } = useSession();
+  const idStore = session?.idStore;
 
   const [isActive, setIsActive] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,27 +43,13 @@ export const InitialWalkthroughProvider: React.FC<
   const hasRunRef = useRef(false);
   const originalPathRef = useRef<string | null>(null);
 
-  const isReload = useMemo(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      const entries = performance.getEntriesByType(
-        "navigation"
-      ) as PerformanceNavigationTiming[];
-      if (entries && entries.length > 0) {
-        return entries[0].type === "reload";
-      }
-      // legacy fallback
-
-      return performance?.navigation?.type === 1;
-    } catch {
-      return false;
-    }
-  }, []);
+  // Removed reload detection: walkthrough now runs only after successful login
 
   useEffect(() => {
     // Do not run on login page
     if (pathname?.startsWith("/init")) return;
-    if (!isReload) return;
+    // Run ONLY after login when terminal is authorized and store id is present
+    if (!authorized || !idStore) return;
     if (hasRunRef.current) return;
 
     hasRunRef.current = true;
@@ -234,7 +223,7 @@ export const InitialWalkthroughProvider: React.FC<
     };
 
     run();
-  }, [isReload, pathname, router]);
+  }, [authorized, idStore, pathname, router]);
 
   const progressPercent = useMemo(() => {
     if (totalSteps <= 0) return 0;
