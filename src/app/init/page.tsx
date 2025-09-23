@@ -5,7 +5,7 @@ import { Button } from "@shared/ui/button";
 import { Input } from "@shared/ui/input";
 import { Label } from "@shared/ui/label";
 import { useVirtualKeyboard } from "@shared/ui/keyboard-input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import VirtualKeyboard from "@shared/ui/virtual-keyboard";
 import { useRouter } from "next/navigation";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
@@ -15,6 +15,7 @@ import { Logotype } from "@shared/ui/logotype";
 interface LoginFormData {
   email: string;
   password: string;
+  remember: boolean;
 }
 
 export default function InitPage() {
@@ -23,6 +24,7 @@ export default function InitPage() {
     defaultValues: {
       email: "",
       password: "",
+      remember: false,
     },
   });
 
@@ -36,6 +38,17 @@ export default function InitPage() {
   });
   const authStore = useTerminalAuth();
   const { setSession } = useSession();
+  const REMEMBERED_EMAIL_KEY = "rememberedEmail";
+
+  useEffect(() => {
+    try {
+      const savedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY);
+      if (savedEmail) {
+        form.setValue("email", savedEmail);
+        form.setValue("remember", true);
+      }
+    } catch {}
+  }, [form]);
 
   const onSubmit = async (data: LoginFormData) => {
     const response = await fetch(
@@ -53,6 +66,13 @@ export default function InitPage() {
     const responseData = await response.json();
 
     if (responseData.auth === true) {
+      try {
+        if (data.remember) {
+          localStorage.setItem(REMEMBERED_EMAIL_KEY, data.email);
+        } else {
+          localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+        }
+      } catch {}
       authStore.authorize();
       console.log(responseData);
       // Сохраняем idStore в сессии, если он есть в ответе
@@ -115,6 +135,18 @@ export default function InitPage() {
             className="cursor-pointer"
             readOnly
           />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <input
+            id="remember"
+            type="checkbox"
+            {...form.register("remember")}
+            className="h-8 w-8 rounded-md border-muted-foreground"
+          />
+          <Label htmlFor="remember" className="text-3xl font-medium">
+            Запомнить логин
+          </Label>
         </div>
 
         <Button type="submit" size="lg" className="w-full rounded-[60px]">
