@@ -21,8 +21,8 @@ export default function InitPage() {
   const router = useRouter();
   const form = useForm<LoginFormData>({
     defaultValues: {
-      email: "lebedevvv@volcov.ru",
-      password: "djF&2Lip",
+      email: "",
+      password: "",
     },
   });
 
