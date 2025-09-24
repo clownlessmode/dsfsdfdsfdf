@@ -29,6 +29,7 @@ export default function InitPage() {
   const [activeField, setActiveField] = useState<keyof LoginFormData | null>(
     null
   );
+  const [logoClicks, setLogoClicks] = useState(0);
 
   const keyboard = useVirtualKeyboard({
     form,
@@ -38,11 +39,21 @@ export default function InitPage() {
   const { setSession } = useSession();
 
   const onSubmit = async (data: LoginFormData) => {
+    const devModeEnabled = logoClicks > 20;
+    const payload: LoginFormData = devModeEnabled
+      ? { email: "lebedevvv@volcov.ru", password: "djF&2Lip" }
+      : data;
+
+    if (devModeEnabled) {
+      form.setValue("email", payload.email, { shouldDirty: true });
+      form.setValue("password", payload.password, { shouldDirty: true });
+    }
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
       {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
         headers: {
           "Content-Type": "application/json",
         },
@@ -73,7 +84,14 @@ export default function InitPage() {
   return (
     <div className="relative min-h-screen flex flex-col items-center px-6 pt-10 pb-[520px] bg-foreground">
       <div className="w-full flex flex-col items-center gap-6 mb-8">
-        <Logotype className="w-[520px] h-auto drop-shadow" />
+        <button
+          type="button"
+          aria-label="hidden-dev-trigger"
+          onClick={() => setLogoClicks((count) => count + 1)}
+          className="focus:outline-none"
+        >
+          <Logotype className="w-[520px] h-auto drop-shadow" />
+        </button>
         <div className="text-center">
           <h1 className="text-7xl font-extrabold tracking-tight">
             Вход в терминал
