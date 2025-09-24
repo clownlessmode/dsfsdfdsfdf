@@ -88,7 +88,7 @@ export const Product = ({ product }: IProps) => {
               width={500}
               height={500}
             />
-            <p className="text-center justify-start text-foreground text-3xl font-black">
+            <p className="text-center justify-start text-foreground text-3xl font-black leading-none">
               {product.name}
             </p>
           </div>
