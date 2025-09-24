@@ -86,8 +86,12 @@ export async function generateStaticParams() {
   }));
 }
 
-const CatalogueIdPage = async ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const CatalogueIdPage = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
+  const { id } = await params;
   const product = await getProduct(Number(id));
   return <ProductConfigurator product={product ?? null} />;
 };
