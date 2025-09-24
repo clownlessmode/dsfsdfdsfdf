@@ -2,11 +2,17 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Session, SessionStore } from "../config";
 
-const useSessionStore = create<SessionStore & { hasHydrated: boolean }>()(
-  persist<SessionStore & { hasHydrated: boolean }>(
+type SessionHydration = {
+  hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
+};
+
+const useSessionStore = create<SessionStore & SessionHydration>()(
+  persist<SessionStore & SessionHydration>(
     (set, get) => ({
       session: null,
       hasHydrated: false,
+      setHasHydrated: (v: boolean) => set({ hasHydrated: v }),
       setSession: (session: Session) => set({ session }),
       clearSession: () => set({ session: null }),
       clearUserData: () => {
@@ -25,8 +31,8 @@ const useSessionStore = create<SessionStore & { hasHydrated: boolean }>()(
     {
       name: "session",
       onRehydrateStorage: () => {
-        return () => {
-          set({ hasHydrated: true });
+        return (state) => {
+          state?.setHasHydrated?.(true);
         };
       },
     }
@@ -36,8 +42,16 @@ const useSessionStore = create<SessionStore & { hasHydrated: boolean }>()(
 export const useSession = () => {
   const session = useSessionStore((s) => s.session);
   const hasHydrated = useSessionStore((s) => s.hasHydrated);
+  const setHasHydrated = useSessionStore((s) => s.setHasHydrated);
   const setSession = useSessionStore((s) => s.setSession);
   const clearSession = useSessionStore((s) => s.clearSession);
   const clearUserData = useSessionStore((s) => s.clearUserData);
-  return { session, hasHydrated, setSession, clearSession, clearUserData };
+  return {
+    session,
+    hasHydrated,
+    setHasHydrated,
+    setSession,
+    clearSession,
+    clearUserData,
+  };
 };
