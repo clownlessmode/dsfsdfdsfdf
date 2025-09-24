@@ -114,7 +114,7 @@ export const Product = ({ product }: IProps) => {
               </svg>
             </div>
           )} */}
-          <Button size="sm">
+          <Button size="sm" className="mt-1">
             {product.type?.length && product.type?.length > 1 ? (
               `от ${product.type?.[0].price} ₽`
             ) : (
