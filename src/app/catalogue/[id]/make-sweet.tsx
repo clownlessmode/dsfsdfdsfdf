@@ -329,13 +329,13 @@ export const MakeSweet = ({
                       className="flex flex-row flex-wrap gap-4"
                       variants={sectionVariants}
                     >
-                      {product.ingredients?.map((ingredient, index) => {
-                        const removed = removedIngredients.has(index);
+                      {product.ingredients?.map((ingredient) => {
+                        const removed = removedIngredients.has(ingredient.id);
                         return (
                           <motion.button
-                            key={index}
+                            key={ingredient.id}
                             variants={itemVariants}
-                            onClick={() => toggleRemoved(index)}
+                            onClick={() => toggleRemoved(ingredient.id)}
                             className={`bg-black/10 backdrop-blur-xl flex items-center rounded-[50px] py-[20px] px-[60px] gap-2 text-white text-[36px] font-semibold tracking-tighter transition-opacity ${
                               removed ? "opacity-50" : "opacity-100"
                             }`}
@@ -344,7 +344,7 @@ export const MakeSweet = ({
                             <span
                               className={`${removed ? "line-through" : ""}`}
                             >
-                              {ingredient}
+                              {ingredient.name}
                             </span>
                             <X className="size-[36px] -mb-1" />
                           </motion.button>

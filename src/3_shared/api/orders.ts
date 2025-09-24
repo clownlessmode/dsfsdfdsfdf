@@ -85,7 +85,10 @@ export const transformCartItemsToOrderProducts = (
 
     // Создаем строку исключенных ингредиентов
     const removedIngredients = Array.from(item.removedIngredients)
-      .map((ingredientIndex) => item.product.ingredients[ingredientIndex])
+      .map(
+        (ingredientId) =>
+          item.product.ingredients.find((ing) => ing.id === ingredientId)?.name
+      )
       .filter(Boolean);
 
     const exclude =

@@ -300,16 +300,17 @@ export const CartProductRow = ({ item }: { item: CartItem }) => {
             )}
             {item.removedIngredients.size > 0 && (
               <div className="flex flex-row gap-1">
-                {Array.from(item.removedIngredients).map((ingredientIndex) => {
-                  const ingredientName =
-                    item.product.ingredients[ingredientIndex];
+                {Array.from(item.removedIngredients).map((ingredientId) => {
+                  const ingredientName = item.product.ingredients.find(
+                    (ing) => ing.id === ingredientId
+                  )?.name;
                   return (
                     <p
-                      key={ingredientIndex}
+                      key={ingredientId}
                       className="text-2xl font-medium bg-red-100 rounded-[20px] p-2 text-center text-red-900"
                     >
                       <span className="line-through">
-                        {ingredientName || `Ingredient ${ingredientIndex}`}
+                        {ingredientName || `Ingredient ${ingredientId}`}
                       </span>
                     </p>
                   );

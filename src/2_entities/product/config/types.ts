@@ -6,11 +6,11 @@ export interface IProduct {
   color: string | null;
   oldPrice: number | null;
   groups: IProductGroup[];
-  subgroup: string[];
+  subgroups: IProductGroup[];
   type: IProductType[] | null;
   extras: IProductExtras[] | null;
   information: IProductInformation | null;
-  ingredients: string[];
+  ingredients: IProductIngredient[];
 }
 
 export interface IProductGroup {
@@ -31,6 +31,11 @@ export interface IProductExtras {
   price: number;
   image: string;
   description: string;
+}
+
+export interface IProductIngredient {
+  id: number;
+  name: string;
 }
 
 export interface IProductInformation {
