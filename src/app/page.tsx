@@ -4,14 +4,13 @@ import { Logotype } from "@shared/ui/logotype";
 import Link from "next/link";
 import React from "react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 3600;
 
 const getAdvertisements = async () => {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/banner-main`,
-      { credentials: "include", cache: "no-store" }
+      { credentials: "include", next: { tags: ["advertisements"] } }
     );
     const data = await response.json();
     console.log(data);

@@ -3,11 +3,7 @@ import { IBM_Plex_Sans, Inter } from "next/font/google";
 import "./_styles/globals.css";
 import "./_styles/tailwind.css";
 
-import {
-  SplashProvider,
-  TerminalAuthGuard,
-  InitialWalkthroughProvider,
-} from "./_providers";
+import { SplashProvider, TerminalAuthGuard } from "./_providers";
 
 const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-geist-sans",
@@ -38,9 +34,7 @@ export default function RootLayout({
         className={`${ibmPlexSans.variable} ${inter.variable} antialiased min-h-screen h-full`}
       >
         <SplashProvider>
-          <TerminalAuthGuard>
-            <InitialWalkthroughProvider>{children}</InitialWalkthroughProvider>
-          </TerminalAuthGuard>
+          <TerminalAuthGuard>{children}</TerminalAuthGuard>
         </SplashProvider>
       </body>
     </html>
