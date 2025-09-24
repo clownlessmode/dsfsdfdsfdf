@@ -74,6 +74,13 @@ export default function InitPage() {
           idStore: responseData.store.idStore,
         });
       }
+      try {
+        if (devModeEnabled) {
+          localStorage.setItem("foodcort_dev_login", "1");
+        } else {
+          localStorage.removeItem("foodcort_dev_login");
+        }
+      } catch {}
       router.push("/");
     } else {
       authStore.deauthorize();

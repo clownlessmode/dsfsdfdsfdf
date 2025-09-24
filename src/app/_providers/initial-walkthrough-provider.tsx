@@ -116,6 +116,13 @@ export const InitialWalkthroughProvider: React.FC<
     };
 
     const run = async () => {
+      const isDevLogin = (() => {
+        try {
+          return localStorage.getItem("foodcort_dev_login") === "1";
+        } catch {
+          return false;
+        }
+      })();
       setIsActive(true);
       // Устанавливаем флаг прогрева в localStorage для предотвращения редиректов
       try {
@@ -202,8 +209,20 @@ export const InitialWalkthroughProvider: React.FC<
             router.push(path, { scroll: false });
             await waitForPath(path, 6000);
           }
-          // Стоим 2 секунды на каждой странице
-          await delay(1400);
+          // Если это страница продукта, попробуем открыть MakeSweet (extras)
+          try {
+            const isProductPage = /^\/catalogue\/(\d+)/.test(path);
+            if (isProductPage) {
+              const url = new URL(window.location.href);
+              url.searchParams.set("openextras", "1");
+              window.history.replaceState({}, "", url.toString());
+              // Дать времени интерфейсу применить параметр
+              await delay(80);
+            }
+          } catch {}
+
+          // Стоим на каждой странице меньше в dev входе
+          await delay(isDevLogin ? 200 : 1400);
         }
 
         // Переход на главный экран после завершения прогрева

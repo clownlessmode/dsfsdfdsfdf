@@ -7,6 +7,7 @@ import { Button } from "@shared/ui/button";
 import { useCart } from "@entities/cart/model/store";
 import { IProduct } from "@entities/product";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Background from "./background";
 import { InfoModal } from "./info-modal";
 import { hexToHsl, setHslBrightness } from "@shared/lib/utils";
@@ -69,6 +70,13 @@ export const ProductConfigurator = ({ product }: Props) => {
   const hslColor = hexToHsl(product?.color ?? "#ffffff");
   const hslColorBright = setHslBrightness(hslColor, 20);
   const [isExtrasOpen, setIsExtrasOpen] = useState(false);
+  const searchParams = useSearchParams();
+
+  // Авто-открытие "MakeSweet" при наличии флага в URL
+  useEffect(() => {
+    const shouldOpen = searchParams?.get("openextras") === "1";
+    if (shouldOpen) setIsExtrasOpen(true);
+  }, [searchParams]);
   const handleAddToCart = () => {
     if (!product || !selectedType) return;
 
