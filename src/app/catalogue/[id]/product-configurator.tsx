@@ -118,7 +118,7 @@ export const ProductConfigurator = ({ product }: Props) => {
           height={1980}
         />
         <h1
-          className="text-[128px] !font-black mt-4 -tracking-[7px] font-inter leading-none text-center text-balance w-full"
+          className="text-[100px] !font-black mt-4 -tracking-[6px] font-inter leading-none text-center text-balance w-full"
           style={{
             color: hslColorBright,
           }}
