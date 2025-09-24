@@ -10,7 +10,7 @@ import {
 } from "@shared/lib/cache-utils";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
 import { useSession } from "@entities/session";
-import { useCatalogueCache } from "../catalogue/catalogue-cache";
+// Catalogue cache removed; no client seeding needed
 
 interface InitialWalkthroughProviderProps {
   children: React.ReactNode;
@@ -122,7 +122,6 @@ export const InitialWalkthroughProvider: React.FC<
     };
 
     const run = async () => {
-      const { setCatalogueData } = useCatalogueCache.getState();
       const isDevLogin = (() => {
         try {
           return localStorage.getItem("foodcort_dev_login") === "1";
@@ -158,13 +157,7 @@ export const InitialWalkthroughProvider: React.FC<
           fetchCategories(),
           fetchProducts(),
         ]);
-        // Seed client catalogue cache for later navigations
-        try {
-          setCatalogueData({
-            categories: categories as any,
-            products: products as any,
-          });
-        } catch {}
+        // Client catalogue cache removed; skip seeding
         await delay(1000);
 
         // Шаг 3: Сбор и предзагрузка изображений

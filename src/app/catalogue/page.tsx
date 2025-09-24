@@ -1,57 +1,39 @@
-"use client";
-
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
 import CatalogueBrowser from "./catalogue-browser";
 import type { IProduct } from "@entities/product";
 import type { ICategory, ICategoryResponse } from "@entities/category";
-import { useCatalogueCache } from "./catalogue-cache";
-import { safeFetchJson } from "@shared/lib/safe-fetch";
 
-const CataloguePage = () => {
-  const { categories, products, setCatalogueData, hasHydrated } =
-    useCatalogueCache();
-  const [loading, setLoading] = useState(false);
+export const revalidate = 3600;
 
-  const shouldFetch =
-    hasHydrated && (categories.length === 0 || products.length === 0);
+async function getCategories(): Promise<ICategory[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
+    credentials: "include",
+    next: { revalidate: 3600, tags: ["catalogue", "categories"] },
+  });
+  if (!res.ok) return [];
+  const json = (await res.json()) as ICategoryResponse;
+  return json?.data ?? [];
+}
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      if (!shouldFetch) return;
-      setLoading(true);
-      const [catRes, prodRes] = await Promise.all([
-        safeFetchJson<ICategoryResponse>(
-          `${process.env.NEXT_PUBLIC_API_URL}/groups`
-        ),
-        safeFetchJson<IProduct[]>(
-          `${process.env.NEXT_PUBLIC_API_URL}/product-main`
-        ),
-      ]);
+async function getProducts(): Promise<IProduct[]> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product-main`, {
+    credentials: "include",
+    next: { revalidate: 3600, tags: ["catalogue", "products"] },
+  });
+  if (!res.ok) return [];
+  const json = (await res.json()) as unknown as
+    | IProduct[]
+    | { data?: IProduct[] };
+  return Array.isArray(json) ? json : json?.data ?? [];
+}
 
-      if (!cancelled) {
-        setCatalogueData({
-          categories: catRes.success ? catRes.data?.data ?? [] : [],
-          products: prodRes.success ? (prodRes.data as IProduct[]) ?? [] : [],
-        });
-        setLoading(false);
-      }
-    };
-    if (!hasHydrated) return;
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [shouldFetch, setCatalogueData, hasHydrated]);
+const CataloguePage = async () => {
+  const [categories, products] = await Promise.all([
+    getCategories(),
+    getProducts(),
+  ]);
 
-  const memoCategories: ICategory[] = useMemo(() => categories, [categories]);
-  const memoProducts: IProduct[] = useMemo(() => products, [products]);
-
-  if (loading && shouldFetch) return null;
-
-  return (
-    <CatalogueBrowser categories={memoCategories} products={memoProducts} />
-  );
+  return <CatalogueBrowser categories={categories} products={products} />;
 };
 
 export default CataloguePage;
