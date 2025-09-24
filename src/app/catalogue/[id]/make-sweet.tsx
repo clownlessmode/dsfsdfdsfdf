@@ -55,7 +55,7 @@ export const MakeSweet = ({
   React.useEffect(() => {
     if (isOpen) setIsRendered(true);
   }, [isOpen]);
-
+  const hasIngredients = (product?.ingredients?.length ?? 0) > 0;
   // Micro page-like transition
   const easingInOut = [0.22, 1, 0.36, 1] as const;
   const contentVariants = {
@@ -135,7 +135,7 @@ export const MakeSweet = ({
   return (
     <>
       <AnimatePresence>
-        {!isOpen && validExtras.length > 0 && (
+        {!isOpen && (validExtras.length > 0 || hasIngredients) && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -154,7 +154,7 @@ export const MakeSweet = ({
               <p className="text-[24px] font-normal leading-tight">
                 Добавьте или удалите
                 <br />
-                ингридиенты по вашему вкусу
+                ингредиенты по вашему вкусу
               </p>
               <div className="flex flex-row -space-x-[35px]">
                 {validExtras

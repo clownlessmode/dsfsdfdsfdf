@@ -70,7 +70,7 @@ const CatalogueBrowser = ({
                     >
                       {category.name}
                     </h2>
-                    <div className="grid grid-cols-3 gap-6 mt-2.5 p-2.5 space-y-[18px]">
+                    <div className="grid grid-cols-3 gap-x-6 mt-2.5 p-2.5 items-stretch gap-y-[32px]">
                       {items.map((product) => (
                         <Product key={product.id} product={product} />
                       ))}

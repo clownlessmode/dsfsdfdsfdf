@@ -82,10 +82,10 @@ export const InfoModal = ({ product }: InfoModalProps) => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <p className="text-[32px] text-left w-full mt-6">
+                  <p className="text-[32px] text-left w-full mt-6 first-letter:capitalize lowercase">
                     {product.information.composition}
                   </p>
-                  <p className="text-[32px] text-left w-full text-muted-foreground mt-2">
+                  <p className="text-[32px] text-left w-full text-muted-foreground mt-2 lowercase">
                     {product.information.gramm}
                   </p>
                 </motion.div>
@@ -109,7 +109,7 @@ export const InfoModal = ({ product }: InfoModalProps) => {
                   <p className="text-[32px] text-left w-full font-semibold mt-8">
                     Углеводы
                   </p>
-                  <p className="text-[32px] text-left w-full text-muted-foreground">
+                  <p className="text-[32px] text-left w-full text-muted-foreground lowercase">
                     {product?.information?.carbohydrates} г
                   </p>
                 </div>
@@ -117,7 +117,7 @@ export const InfoModal = ({ product }: InfoModalProps) => {
                   <p className="text-[32px] text-left w-full font-semibold mt-8">
                     Белки
                   </p>
-                  <p className="text-[32px] text-left w-full text-muted-foreground">
+                  <p className="text-[32px] text-left w-full text-muted-foreground lowercase">
                     {product?.information?.proteins} г
                   </p>
                 </div>
@@ -125,7 +125,7 @@ export const InfoModal = ({ product }: InfoModalProps) => {
                   <p className="text-[32px] text-left w-full font-semibold mt-8">
                     Жиры
                   </p>
-                  <p className="text-[32px] text-left w-full text-muted-foreground">
+                  <p className="text-[32px] text-left w-full text-muted-foreground lowercase">
                     {product?.information?.fats} г
                   </p>
                 </div>

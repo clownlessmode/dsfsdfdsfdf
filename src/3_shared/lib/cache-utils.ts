@@ -14,17 +14,34 @@ export const addCacheBuster = (url: string): string => {
 /**
  * Очищает кеш браузера
  */
-export const clearBrowserCache = async (): Promise<void> => {
+export const clearBrowserCache = async (options?: {
+  keepLocalStorageKeys?: string[];
+}): Promise<void> => {
   // Очистка Service Worker кеша
   if ("caches" in window) {
     const cacheNames = await caches.keys();
     await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
   }
 
-  // Очистка localStorage и sessionStorage
+  // Очистка localStorage и sessionStorage, с возможностью сохранить некоторые ключи
   try {
+    const keep = new Set(options?.keepLocalStorageKeys ?? []);
+    const preserved: Record<string, string> = {};
+    // Сохраняем нужные ключи
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (keep.has(key)) {
+        const value = localStorage.getItem(key);
+        if (value !== null) preserved[key] = value;
+      }
+    }
+
     localStorage.clear();
     sessionStorage.clear();
+
+    // Восстанавливаем сохранённые ключи
+    Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
   } catch (e) {
     console.warn("Could not clear storage:", e);
   }
@@ -44,12 +61,14 @@ export const clearBrowserCache = async (): Promise<void> => {
  * Принудительно предзагружает изображения
  */
 export const preloadImages = async (imageUrls: string[]): Promise<void> => {
-  const promises = imageUrls.map((url) => {
+  const unique = Array.from(new Set(imageUrls.filter(Boolean)));
+  const promises = unique.map((url) => {
     return new Promise<void>((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve();
       img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
-      img.src = addCacheBuster(url);
+      // Preload WITHOUT cache buster so the same URL is reused later
+      img.src = url;
     });
   });
 

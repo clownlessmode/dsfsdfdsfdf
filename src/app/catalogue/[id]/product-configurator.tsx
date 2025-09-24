@@ -32,7 +32,10 @@ export const ProductConfigurator = ({ product }: Props) => {
 
   useEffect(() => {
     if (!selectedTypeId && product?.type?.length) {
-      setSelectedTypeId(product.type[0].id.toString());
+      const firstValidType = product.type.find((t) => t && t.id != null);
+      if (firstValidType) {
+        setSelectedTypeId(String(firstValidType.id));
+      }
     }
   }, [product, selectedTypeId]);
 
@@ -53,7 +56,7 @@ export const ProductConfigurator = ({ product }: Props) => {
   }, [product]);
 
   const selectedType = product?.type?.find(
-    (t) => t.id.toString() === selectedTypeId
+    (t) => t && t.id != null && String(t.id) === selectedTypeId
   );
   const unitPrice = selectedType?.price ?? 0;
   const extrasTotal = useMemo(() => {
@@ -71,6 +74,9 @@ export const ProductConfigurator = ({ product }: Props) => {
   const hslColorBright = setHslBrightness(hslColor, 20);
   const [isExtrasOpen, setIsExtrasOpen] = useState(false);
   const searchParams = useSearchParams();
+  const hasValidExtras =
+    (product?.extras?.filter((e) => e && (e.name || e.image)).length ?? 0) > 0;
+  const hasIngredients = (product?.ingredients?.length ?? 0) > 0;
 
   // Авто-открытие "MakeSweet" при наличии флага в URL
   useEffect(() => {
@@ -101,8 +107,7 @@ export const ProductConfigurator = ({ product }: Props) => {
       <div className="inset-0 absolute -z-10">
         <Background color={product.color ?? "#ffffff"} />
       </div>
-      {(product.extras?.filter((e) => e && (e.name || e.image)).length ?? 0) >
-        0 && (
+      {(hasValidExtras || hasIngredients) && (
         <MakeSweet
           product={product}
           isOpen={isExtrasOpen}
@@ -122,8 +127,8 @@ export const ProductConfigurator = ({ product }: Props) => {
           alt={product.name || "product"}
           className="aspect-square w-full object-cover"
           src={product.image ?? null}
-          width={1980}
-          height={1980}
+          width={1080}
+          height={1080}
         />
         <h1
           className="text-[100px] !font-black mt-4 -tracking-[6px] font-inter leading-none text-center text-balance w-full"
@@ -144,11 +149,13 @@ export const ProductConfigurator = ({ product }: Props) => {
 
         <AnimatedTabs
           items={
-            product.type?.map((type) => ({
-              id: type.id.toString(),
-              name: type.name,
-              price: type.price,
-            })) || []
+            product.type
+              ?.filter((type) => type && type.id != null)
+              .map((type) => ({
+                id: String(type.id),
+                name: type.name,
+                price: type.price,
+              })) || []
           }
           selectedId={selectedTypeId}
           onSelect={(id) => setSelectedTypeId(id)}

@@ -1,21 +1,16 @@
 import { IProduct } from "@entities/product/config/types";
 import { ProductConfigurator } from "./product-configurator";
 
-export const revalidate = 0; // No caching
+// Cache product pages for 5 minutes to avoid excessive API requests
+export const revalidate = 300;
 
 async function getProduct(id: number) {
   try {
-    const timestamp = Date.now();
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/product-main/${id}?_cb=${timestamp}&_force_reload=true`,
+      `${process.env.NEXT_PUBLIC_API_URL}/product-main/${id}`,
       {
+        next: { revalidate },
         credentials: "include",
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
       }
     );
 
@@ -48,17 +43,11 @@ async function getProduct(id: number) {
 
 async function getAllProductIds() {
   try {
-    const timestamp = Date.now();
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/product-main?_cb=${timestamp}&_force_reload=true`,
+      `${process.env.NEXT_PUBLIC_API_URL}/product-main`,
       {
+        next: { revalidate },
         credentials: "include",
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
       }
     );
 

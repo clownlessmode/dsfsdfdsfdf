@@ -75,7 +75,7 @@ export const Product = ({ product }: IProps) => {
         <Link
           href={`/catalogue/${product.id}`}
           className={cn(
-            "flex flex-col h-[360px] w-full justify-between items-center"
+            "flex flex-col min-h-[370px] h-full w-full justify-between items-center"
           )}
         >
           <div className="flex flex-col gap-1">
@@ -88,7 +88,7 @@ export const Product = ({ product }: IProps) => {
               width={500}
               height={500}
             />
-            <p className="text-center justify-start text-foreground text-3xl font-black leading-none">
+            <p className="text-center justify-start text-foreground text-[24px] font-black leading-none">
               {product.name}
             </p>
           </div>
@@ -114,7 +114,7 @@ export const Product = ({ product }: IProps) => {
               </svg>
             </div>
           )} */}
-          <Button size="sm" className="mt-auto">
+          <Button size="sm">
             {product.type?.length && product.type?.length > 1 ? (
               `от ${product.type?.[0].price} ₽`
             ) : (

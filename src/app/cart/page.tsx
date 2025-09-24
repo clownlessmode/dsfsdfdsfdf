@@ -258,8 +258,8 @@ export const CartProductRow = ({ item }: { item: CartItem }) => {
           priority={true}
           src={item.product.image}
           alt={item.product.name}
-          width={160}
-          height={160}
+          width={500}
+          height={500}
           className="rounded-[20px] w-[160px] aspect-square object-cover"
         />
         <div className="flex flex-col">

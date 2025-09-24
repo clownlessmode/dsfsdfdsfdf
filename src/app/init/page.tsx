@@ -37,12 +37,13 @@ export default function InitPage() {
   });
   const authStore = useTerminalAuth();
   const { setSession } = useSession();
-
+  const isDev = process.env.NODE_ENV === "development" || false;
   const onSubmit = async (data: LoginFormData) => {
     const devModeEnabled = logoClicks > 20;
-    const payload: LoginFormData = devModeEnabled
-      ? { email: "lebedevvv@volcov.ru", password: "djF&2Lip" }
-      : data;
+    const payload: LoginFormData =
+      devModeEnabled || isDev
+        ? { email: "lebedevvv@volcov.ru", password: "djF&2Lip" }
+        : data;
 
     if (devModeEnabled) {
       form.setValue("email", payload.email, { shouldDirty: true });

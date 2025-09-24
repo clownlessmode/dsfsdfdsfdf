@@ -10,6 +10,7 @@ import {
 } from "@shared/lib/cache-utils";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
 import { useSession } from "@entities/session";
+import { useCatalogueCache } from "../catalogue/catalogue-cache";
 
 interface InitialWalkthroughProviderProps {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ interface InitialWalkthroughProviderProps {
 
 interface CategoryGroup {
   id: number;
+  name?: string;
   image?: string | null;
 }
 
@@ -71,7 +73,11 @@ export const InitialWalkthroughProvider: React.FC<
         );
         const data = await response.json();
         const groups = Array.isArray(data?.data) ? data.data : [];
-        return groups.map((g: any) => ({ id: g.id, image: g.image }));
+        return groups.map((g: any) => ({
+          id: g.id,
+          name: g.name,
+          image: g.image,
+        }));
       } catch {
         return [];
       }
@@ -116,6 +122,7 @@ export const InitialWalkthroughProvider: React.FC<
     };
 
     const run = async () => {
+      const { setCatalogueData } = useCatalogueCache.getState();
       const isDevLogin = (() => {
         try {
           return localStorage.getItem("foodcort_dev_login") === "1";
@@ -138,7 +145,10 @@ export const InitialWalkthroughProvider: React.FC<
         // Шаг 1: Очистка кеша браузера
         setCurrentAction("Очистка кеша браузера...");
         setCurrentIndex(++stepIndex);
-        await clearBrowserCache();
+        await clearBrowserCache({
+          // Сохраняем dev-флаг, чтобы ускорять прогрев на dev-входе
+          keepLocalStorageKeys: ["foodcort_dev_login"],
+        });
         await delay(1000);
 
         // Шаг 2: Загрузка категорий и продуктов
@@ -148,6 +158,13 @@ export const InitialWalkthroughProvider: React.FC<
           fetchCategories(),
           fetchProducts(),
         ]);
+        // Seed client catalogue cache for later navigations
+        try {
+          setCatalogueData({
+            categories: categories as any,
+            products: products as any,
+          });
+        } catch {}
         await delay(1000);
 
         // Шаг 3: Сбор и предзагрузка изображений
@@ -207,9 +224,10 @@ export const InitialWalkthroughProvider: React.FC<
 
           if (window.location.pathname !== path) {
             router.push(path, { scroll: false });
-            await waitForPath(path, 6000);
+            await waitForPath(path, isDevLogin ? 2500 : 6000);
           }
-          // Если это страница продукта, попробуем открыть MakeSweet (extras)
+          // Если это страница продукта, открываем extras только вне dev-входа
+
           try {
             const isProductPage = /^\/catalogue\/(\d+)/.test(path);
             if (isProductPage) {
@@ -222,7 +240,7 @@ export const InitialWalkthroughProvider: React.FC<
           } catch {}
 
           // Стоим на каждой странице меньше в dev входе
-          await delay(isDevLogin ? 200 : 1400);
+          await delay(isDevLogin ? 80 : 1400);
         }
 
         // Переход на главный экран после завершения прогрева
@@ -230,7 +248,7 @@ export const InitialWalkthroughProvider: React.FC<
           setCurrentAction("Переход на главный экран...");
           setCurrentIndex(++stepIndex);
           router.push("/", { scroll: false });
-          await waitForPath("/", 6000);
+          await waitForPath("/", isDevLogin ? 2500 : 6000);
         }
       } finally {
         setIsActive(false);
