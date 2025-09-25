@@ -3,12 +3,14 @@ import { CartItem } from "@entities/cart/config/types";
 export interface OrderProductInclude {
   id: number;
   name: string;
+  price: number;
   count: number;
 }
 
 export interface OrderProduct {
   id: number;
   name: string;
+  price: number;
   count: number;
   include: OrderProductInclude[];
   exclude: string;
@@ -69,6 +71,9 @@ export const transformCartItemsToOrderProducts = (
   cartItems: CartItem[]
 ): OrderProduct[] => {
   return cartItems.map((item) => {
+    // Базовая цена единицы товара (без учёта допов)
+    const unitPrice = item.selectedType?.price || 0;
+
     // Создаем массив включенных допов (extras)
     const include: OrderProductInclude[] = Object.keys(item.extras)
       .filter((extraId) => item.extras[parseInt(extraId)] > 0)
@@ -79,6 +84,7 @@ export const transformCartItemsToOrderProducts = (
         return {
           id: parseInt(extraId),
           name: extra?.name || `Доп ${extraId}`,
+          price: extra?.price ?? 0, // цена за единицу допа
           count: item.extras[parseInt(extraId)],
         };
       });
@@ -99,6 +105,7 @@ export const transformCartItemsToOrderProducts = (
     return {
       id: item.selectedType?.id || item.product.id,
       name: item.product.name,
+      price: unitPrice, // цена за единицу товара без допов
       count: item.quantity,
       include,
       exclude,
