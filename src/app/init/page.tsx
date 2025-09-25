@@ -42,7 +42,7 @@ export default function InitPage() {
     const devModeEnabled = logoClicks > 20;
     const payload: LoginFormData =
       devModeEnabled || isDev
-        ? { email: "lebedevvv@volcov.ru", password: "djF&2Lip" }
+        ? { email: "mag_molod2@volcov.ru", password: "bVF8MKx#" }
         : data;
 
     if (devModeEnabled) {
