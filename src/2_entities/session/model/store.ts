@@ -13,7 +13,18 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
       session: null,
       hasHydrated: false,
       setHasHydrated: (v: boolean) => set({ hasHydrated: v }),
-      setSession: (session: Session) => set({ session }),
+      setSession: (session: Partial<Session>) =>
+        set((state) => {
+          const current = state.session;
+          const next: Session = {
+            telephone: session.telephone ?? current?.telephone ?? "",
+            receivingMethod:
+              session.receivingMethod ?? current?.receivingMethod ?? null,
+            // Preserve existing idStore unless an explicit new value is provided
+            idStore: session.idStore ?? current?.idStore,
+          };
+          return { session: next };
+        }),
       clearSession: () => set({ session: null }),
       clearUserData: () => {
         const currentSession = get().session;

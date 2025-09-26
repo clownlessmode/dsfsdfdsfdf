@@ -11,7 +11,7 @@ export enum ReceivingMethod {
 
 export interface SessionStore {
   session: Session | null;
-  setSession: (session: Session) => void;
+  setSession: (session: Partial<Session>) => void;
   clearSession: () => void;
   clearUserData: () => void;
 }
