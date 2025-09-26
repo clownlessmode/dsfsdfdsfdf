@@ -44,6 +44,7 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
       storage: {
         getItem: (name) => {
           try {
+            if (typeof window === "undefined" || !localStorage) return null;
             const item = localStorage.getItem(name);
             return item ? JSON.parse(item) : null;
           } catch {
@@ -52,6 +53,7 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
         },
         setItem: (name, value) => {
           try {
+            if (typeof window === "undefined" || !localStorage) return;
             localStorage.setItem(name, JSON.stringify(value));
           } catch {
             // If localStorage fails, continue without error
@@ -60,6 +62,7 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
         },
         removeItem: (name) => {
           try {
+            if (typeof window === "undefined" || !localStorage) return;
             localStorage.removeItem(name);
           } catch {
             // If localStorage fails, continue without error

@@ -31,6 +31,8 @@ const SplashPage = () => {
 
   useEffect(() => {
     // Проверяем, первое ли это посещение
+    if (typeof window === "undefined" || !localStorage) return;
+
     const hasVisited = localStorage.getItem("foodcort-has-visited");
     const isFirst = !hasVisited;
     setIsFirstVisit(isFirst);

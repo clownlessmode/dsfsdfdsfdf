@@ -35,6 +35,8 @@ export const useTerminalAuth = create<TerminalAuthState>()(
       checkAutoAuth: () => {
         // Check if we have valid session data and should auto-authorize
         try {
+          if (typeof window === "undefined" || !localStorage) return;
+
           const sessionData = localStorage.getItem("session");
           if (sessionData) {
             const parsed = JSON.parse(sessionData);
@@ -56,6 +58,7 @@ export const useTerminalAuth = create<TerminalAuthState>()(
       storage: {
         getItem: (name) => {
           try {
+            if (typeof window === "undefined" || !localStorage) return null;
             const item = localStorage.getItem(name);
             return item ? JSON.parse(item) : null;
           } catch {
@@ -64,6 +67,7 @@ export const useTerminalAuth = create<TerminalAuthState>()(
         },
         setItem: (name, value) => {
           try {
+            if (typeof window === "undefined" || !localStorage) return;
             localStorage.setItem(name, JSON.stringify(value));
           } catch {
             // If localStorage fails, continue without error
@@ -72,6 +76,7 @@ export const useTerminalAuth = create<TerminalAuthState>()(
         },
         removeItem: (name) => {
           try {
+            if (typeof window === "undefined" || !localStorage) return;
             localStorage.removeItem(name);
           } catch {
             // If localStorage fails, continue without error

@@ -52,16 +52,18 @@ export function TerminalAuthGuard({ children }: Props) {
     // If authorized but missing idStore, try to recover from localStorage
     if (authorized && !idStore && pathname !== "/init" && !isCheckingSession) {
       // Check if we have session data in localStorage that might not have hydrated yet
-      const storedSession = localStorage.getItem("session");
-      if (storedSession) {
-        try {
-          const parsed = JSON.parse(storedSession);
-          if (parsed.state?.session?.idStore) {
-            // Session exists with idStore, just wait for hydration
-            return;
+      if (typeof window !== "undefined" && localStorage) {
+        const storedSession = localStorage.getItem("session");
+        if (storedSession) {
+          try {
+            const parsed = JSON.parse(storedSession);
+            if (parsed.state?.session?.idStore) {
+              // Session exists with idStore, just wait for hydration
+              return;
+            }
+          } catch {
+            // Invalid stored session, continue to init
           }
-        } catch {
-          // Invalid stored session, continue to init
         }
       }
       // No valid session found, redirect to init
