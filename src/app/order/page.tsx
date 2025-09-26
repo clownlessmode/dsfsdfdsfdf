@@ -21,7 +21,13 @@ const OrderContent = () => {
   const handleNewOrder = React.useCallback(() => {
     clearCart();
     clearUserData(); // Очищаем только пользовательские данные, сохраняя idStore
-    router.push("/");
+    router.push("/catalogue"); // Перекидываем на каталог, а не на главную
+  }, [clearCart, clearUserData, router]);
+
+  const handleTimerExpired = React.useCallback(() => {
+    clearCart();
+    clearUserData(); // Очищаем только пользовательские данные, сохраняя idStore
+    router.push("/catalogue"); // Перекидываем на каталог при истечении таймера
   }, [clearCart, clearUserData, router]);
   const formatOrderId = (id: string | number | null | undefined) => {
     if (id === null || id === undefined) return "";
@@ -46,9 +52,9 @@ const OrderContent = () => {
   // Handle timer expiration separately to avoid setState during render
   React.useEffect(() => {
     if (timeLeft === 0) {
-      handleNewOrder();
+      handleTimerExpired();
     }
-  }, [timeLeft, handleNewOrder]);
+  }, [timeLeft, handleTimerExpired]);
 
   // Generate QR code for order ID
   React.useEffect(() => {
