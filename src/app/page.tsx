@@ -25,36 +25,11 @@ const getAdvertisements = async () => {
 const SplashPage = () => {
   const router = useRouter();
   const [advertisements, setAdvertisements] = useState({ data: [] });
-  const [isFirstVisit, setIsFirstVisit] = useState(false);
 
   useEffect(() => {
-    // Проверяем, первое ли это посещение
-    if (typeof window === "undefined" || !localStorage) return;
-
-    const hasVisited = localStorage.getItem("foodcort-has-visited");
-    const isFirst = !hasVisited;
-    setIsFirstVisit(isFirst);
-
-    if (isFirst) {
-      // Первое посещение - загружаем рекламу и показываем splash
-      localStorage.setItem("foodcort-has-visited", "true");
-      getAdvertisements().then(setAdvertisements);
-    } else {
-      // Не первое посещение - сразу перекидываем на каталог
-      router.replace("/catalogue");
-    }
+    localStorage.setItem("foodcort-has-visited", "true");
+    getAdvertisements().then(setAdvertisements);
   }, [router]);
-
-  // Если не первое посещение, показываем загрузку
-  if (!isFirstVisit) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">Переходим в каталог...</h1>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <Link href={"/catalogue"} className="w-screen h-screen flex relative">
