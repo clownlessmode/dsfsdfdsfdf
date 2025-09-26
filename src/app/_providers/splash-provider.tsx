@@ -75,7 +75,7 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
   const handleLeave = useCallback(() => {
     setIsIdleDialogOpen(false);
     clearCart();
-    router.push("/");
+    router.push("/"); // Перекидываем на главную
   }, [clearCart, router]);
 
   // Auto-confirm "Нет" after 10 seconds if dialog stays open

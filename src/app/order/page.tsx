@@ -21,13 +21,13 @@ const OrderContent = () => {
   const handleNewOrder = React.useCallback(() => {
     clearCart();
     clearUserData(); // Очищаем только пользовательские данные, сохраняя idStore
-    router.push("/catalogue"); // Перекидываем на каталог, а не на главную
+    router.push("/"); // Перекидываем на главную
   }, [clearCart, clearUserData, router]);
 
   const handleTimerExpired = React.useCallback(() => {
     clearCart();
     clearUserData(); // Очищаем только пользовательские данные, сохраняя idStore
-    router.push("/catalogue"); // Перекидываем на каталог при истечении таймера
+    router.push("/"); // Перекидываем на главную при истечении таймера
   }, [clearCart, clearUserData, router]);
   const formatOrderId = (id: string | number | null | undefined) => {
     if (id === null || id === undefined) return "";

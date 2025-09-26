@@ -1,8 +1,11 @@
+"use client";
+
 import { AdvertisementFullscreen } from "@entities/advertisement/ui/advertisement-fullscreen";
 import CtaButton from "@shared/ui/cta-button";
 import { Logotype } from "@shared/ui/logotype";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export const revalidate = 3600;
 
@@ -21,8 +24,37 @@ const getAdvertisements = async () => {
   }
 };
 
-const SplashPage = async () => {
-  const advertisements = await getAdvertisements();
+const SplashPage = () => {
+  const router = useRouter();
+  const [advertisements, setAdvertisements] = useState<any>({ data: [] });
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
+
+  useEffect(() => {
+    // Проверяем, первое ли это посещение
+    const hasVisited = localStorage.getItem("foodcort-has-visited");
+    const isFirst = !hasVisited;
+    setIsFirstVisit(isFirst);
+
+    if (isFirst) {
+      // Первое посещение - загружаем рекламу и показываем splash
+      localStorage.setItem("foodcort-has-visited", "true");
+      getAdvertisements().then(setAdvertisements);
+    } else {
+      // Не первое посещение - сразу перекидываем на каталог
+      router.replace("/catalogue");
+    }
+  }, [router]);
+
+  // Если не первое посещение, показываем загрузку
+  if (!isFirstVisit) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Переходим в каталог...</h1>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Link href={"/catalogue"} className="w-screen h-screen flex relative">
