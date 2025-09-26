@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useTerminalAuth } from "@entities/session/model/terminal-auth";
 import { useSession } from "@entities/session";
@@ -12,11 +12,31 @@ interface Props {
 export function TerminalAuthGuard({ children }: Props) {
   const authorized = useTerminalAuth((s) => s.authorized);
   const authHydrated = useTerminalAuth((s) => s.hasHydrated);
+  const checkAutoAuth = useTerminalAuth((s) => s.checkAutoAuth);
   const { session, hasHydrated: sessionHydrated } = useSession();
   const idStore = session?.idStore;
 
   const pathname = usePathname();
   const router = useRouter();
+  const [isCheckingSession, setIsCheckingSession] = React.useState(false);
+
+  // Check for auto-auth when both stores are hydrated
+  React.useEffect(() => {
+    if (authHydrated && sessionHydrated && !authorized) {
+      checkAutoAuth();
+    }
+  }, [authHydrated, sessionHydrated, authorized, checkAutoAuth]);
+
+  // Add a small delay before checking session to allow for updates
+  React.useEffect(() => {
+    if (authorized && !idStore && !isCheckingSession) {
+      setIsCheckingSession(true);
+      const timer = setTimeout(() => {
+        setIsCheckingSession(false);
+      }, 100); // 100ms delay
+      return () => clearTimeout(timer);
+    }
+  }, [authorized, idStore, isCheckingSession]);
 
   useEffect(() => {
     // Wait for both stores to hydrate to avoid flicker/false redirects
@@ -30,7 +50,7 @@ export function TerminalAuthGuard({ children }: Props) {
     }
 
     // If authorized but missing idStore, try to recover from localStorage
-    if (authorized && !idStore && pathname !== "/init") {
+    if (authorized && !idStore && pathname !== "/init" && !isCheckingSession) {
       // Check if we have session data in localStorage that might not have hydrated yet
       const storedSession = localStorage.getItem("session");
       if (storedSession) {

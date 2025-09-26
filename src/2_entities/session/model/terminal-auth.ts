@@ -10,6 +10,7 @@ interface TerminalAuthState {
   authorize: () => void;
   deauthorize: () => void;
   logout: () => void; // Explicit logout that clears everything
+  checkAutoAuth: () => void; // Check if we should auto-authorize on startup
 }
 
 export const useTerminalAuth = create<TerminalAuthState>()(
@@ -29,6 +30,21 @@ export const useTerminalAuth = create<TerminalAuthState>()(
           localStorage.removeItem("terminal-auth-storage");
         } catch {
           console.warn("Failed to clear session data during logout");
+        }
+      },
+      checkAutoAuth: () => {
+        // Check if we have valid session data and should auto-authorize
+        try {
+          const sessionData = localStorage.getItem("session");
+          if (sessionData) {
+            const parsed = JSON.parse(sessionData);
+            const hasIdStore = parsed.state?.session?.idStore;
+            if (hasIdStore) {
+              set({ authorized: true });
+            }
+          }
+        } catch (error) {
+          console.warn("Failed to check auto-auth:", error);
         }
       },
     }),
@@ -67,6 +83,8 @@ export const useTerminalAuth = create<TerminalAuthState>()(
         return (state) => {
           // Флаг гидрации для предотвращения ложных редиректов
           state?.setHasHydrated?.(true);
+          // Проверяем, нужно ли автоматически авторизовать пользователя
+          state?.checkAutoAuth?.();
         };
       },
     }

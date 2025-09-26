@@ -29,13 +29,12 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
       clearUserData: () => {
         const currentSession = get().session;
         if (currentSession) {
-          set({
-            session: {
-              telephone: "",
-              receivingMethod: null,
-              idStore: currentSession.idStore, // Сохраняем idStore
-            },
-          });
+          const newSession = {
+            telephone: "",
+            receivingMethod: null,
+            idStore: currentSession.idStore, // ВСЕГДА сохраняем idStore - это идентификатор магазина
+          };
+          set({ session: newSession });
         }
       },
     }),
