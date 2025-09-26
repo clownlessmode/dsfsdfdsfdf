@@ -7,8 +7,6 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export const revalidate = 3600;
-
 const getAdvertisements = async () => {
   try {
     const response = await fetch(
