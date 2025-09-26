@@ -89,13 +89,13 @@ export const CheckoutModal = ({
                       loading="eager"
                       priority={true}
                       src="/foodcord-terminal/receiving-method/on-the-plate.png"
-                      alt="На подносе"
+                      alt="В зале"
                       width={391}
                       height={391}
                     />
                   </div>
                   <div className="self-stretch text-center justify-start text-yellow-950 text-4xl font-semibold font-['IBM_Plex_Sans']">
-                    На подносе
+                    В зале
                   </div>
                 </div>
                 <div
