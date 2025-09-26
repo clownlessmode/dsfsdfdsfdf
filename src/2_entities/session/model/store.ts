@@ -41,6 +41,33 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
     }),
     {
       name: "session",
+      // Store session data more persistently
+      storage: {
+        getItem: (name) => {
+          try {
+            const item = localStorage.getItem(name);
+            return item ? JSON.parse(item) : null;
+          } catch {
+            return null;
+          }
+        },
+        setItem: (name, value) => {
+          try {
+            localStorage.setItem(name, JSON.stringify(value));
+          } catch {
+            // If localStorage fails, continue without error
+            console.warn("Failed to save session to localStorage");
+          }
+        },
+        removeItem: (name) => {
+          try {
+            localStorage.removeItem(name);
+          } catch {
+            // If localStorage fails, continue without error
+            console.warn("Failed to remove session from localStorage");
+          }
+        },
+      },
       onRehydrateStorage: () => {
         return (state) => {
           state?.setHasHydrated?.(true);

@@ -84,7 +84,8 @@ export default function InitPage() {
       } catch {}
       router.push("/");
     } else {
-      authStore.deauthorize();
+      // Don't automatically deauthorize on login failure
+      // Let user try again without losing existing session
       alert("Авторизация не прошла");
     }
   };

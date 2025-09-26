@@ -22,11 +22,33 @@ export function TerminalAuthGuard({ children }: Props) {
     // Wait for both stores to hydrate to avoid flicker/false redirects
     if (!authHydrated || !sessionHydrated) return;
 
-    // If not authorized OR store id is missing, push to /init
-    if ((!authorized || !idStore) && pathname !== "/init") {
+    // Only redirect to /init if explicitly not authorized (not just missing idStore)
+    // This prevents redirects during temporary network issues or loading states
+    if (!authorized && pathname !== "/init") {
       router.replace("/init");
       return;
     }
+
+    // If authorized but missing idStore, try to recover from localStorage
+    if (authorized && !idStore && pathname !== "/init") {
+      // Check if we have session data in localStorage that might not have hydrated yet
+      const storedSession = localStorage.getItem("session");
+      if (storedSession) {
+        try {
+          const parsed = JSON.parse(storedSession);
+          if (parsed.state?.session?.idStore) {
+            // Session exists with idStore, just wait for hydration
+            return;
+          }
+        } catch {
+          // Invalid stored session, continue to init
+        }
+      }
+      // No valid session found, redirect to init
+      router.replace("/init");
+      return;
+    }
+
     // If fully authorized (and store id present) and currently on /init, go to root
     if (authorized && idStore && pathname === "/init") {
       router.replace("/");
