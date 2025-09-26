@@ -26,7 +26,7 @@ const getAdvertisements = async () => {
 
 const SplashPage = () => {
   const router = useRouter();
-  const [advertisements, setAdvertisements] = useState<any>({ data: [] });
+  const [advertisements, setAdvertisements] = useState({ data: [] });
   const [isFirstVisit, setIsFirstVisit] = useState(false);
 
   useEffect(() => {
