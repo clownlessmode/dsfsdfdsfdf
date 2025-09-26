@@ -82,7 +82,7 @@ export const CheckoutModal = ({
               <div className="self-stretch inline-flex justify-start items-start gap-12">
                 <div
                   className="flex-1 inline-flex flex-col justify-center items-center gap-7 cursor-pointer active:scale-95 transition-all duration-300"
-                  onClick={() => handleMethodSelect("self-service")}
+                  onClick={() => handleMethodSelect("self_service")}
                 >
                   <div className="self-stretch h-72 p-2.5 relative bg-stone-100 rounded-[60px]  outline-offset-[-1px]inline-flex justify-center items-center gap-2.5 overflow-hidden">
                     <Image

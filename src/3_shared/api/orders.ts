@@ -20,7 +20,7 @@ export interface CreateOrderRequest {
   products: OrderProduct[];
   idStore: number;
   phoneNumber: number;
-  receivingMethod: "self-service" | "delivery";
+  receivingMethod: "self_service" | "delivery";
 }
 
 export interface CreateOrderResponse {

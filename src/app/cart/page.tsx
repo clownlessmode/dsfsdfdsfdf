@@ -98,7 +98,7 @@ const CartPage = () => {
         products,
         idStore: session.idStore,
         phoneNumber,
-        receivingMethod: method as "self-service" | "delivery",
+        receivingMethod: method as "self_service" | "delivery",
       });
 
       if (result.success) {
