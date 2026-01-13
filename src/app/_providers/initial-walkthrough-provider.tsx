@@ -124,15 +124,15 @@ export const InitialWalkthroughProvider: React.FC<
     const run = async () => {
       const isDevLogin = (() => {
         try {
-          return localStorage.getItem("foodcort_dev_login") === "1";
+          return sessionStorage.getItem("foodcort_dev_login") === "1";
         } catch {
           return false;
         }
       })();
       setIsActive(true);
-      // Устанавливаем флаг прогрева в localStorage для предотвращения редиректов
+      // Устанавливаем флаг прогрева в sessionStorage для предотвращения редиректов
       try {
-        localStorage.setItem("foodcort_walkthrough_running", "true");
+        sessionStorage.setItem("foodcort_walkthrough_running", "true");
       } catch {}
 
       // Устанавливаем начальное значение totalSteps для корректного отображения
@@ -245,9 +245,9 @@ export const InitialWalkthroughProvider: React.FC<
         }
       } finally {
         setIsActive(false);
-        // Убираем флаг прогрева из localStorage
+        // Убираем флаг прогрева из sessionStorage
         try {
-          localStorage.removeItem("foodcort_walkthrough_running");
+          sessionStorage.removeItem("foodcort_walkthrough_running");
         } catch {}
       }
     };

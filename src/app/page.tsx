@@ -27,7 +27,7 @@ const SplashPage = () => {
   const [advertisements, setAdvertisements] = useState({ data: [] });
 
   useEffect(() => {
-    localStorage.setItem("foodcort-has-visited", "true");
+    sessionStorage.setItem("foodcort-has-visited", "true");
     getAdvertisements().then(setAdvertisements);
   }, [router]);
 

@@ -26,8 +26,8 @@ export const useTerminalAuth = create<TerminalAuthState>()(
         set({ authorized: false });
         // Clear session data
         try {
-          localStorage.removeItem("session");
-          localStorage.removeItem("terminal-auth-storage");
+          sessionStorage.removeItem("session");
+          sessionStorage.removeItem("terminal-auth-storage");
         } catch {
           console.warn("Failed to clear session data during logout");
         }
@@ -35,9 +35,9 @@ export const useTerminalAuth = create<TerminalAuthState>()(
       checkAutoAuth: () => {
         // Check if we have valid session data and should auto-authorize
         try {
-          if (typeof window === "undefined" || !localStorage) return;
+          if (typeof window === "undefined" || !sessionStorage) return;
 
-          const sessionData = localStorage.getItem("session");
+          const sessionData = sessionStorage.getItem("session");
           if (sessionData) {
             const parsed = JSON.parse(sessionData);
             const hasIdStore = parsed.state?.session?.idStore;
@@ -58,8 +58,8 @@ export const useTerminalAuth = create<TerminalAuthState>()(
       storage: {
         getItem: (name) => {
           try {
-            if (typeof window === "undefined" || !localStorage) return null;
-            const item = localStorage.getItem(name);
+            if (typeof window === "undefined" || !sessionStorage) return null;
+            const item = sessionStorage.getItem(name);
             return item ? JSON.parse(item) : null;
           } catch {
             return null;
@@ -67,20 +67,20 @@ export const useTerminalAuth = create<TerminalAuthState>()(
         },
         setItem: (name, value) => {
           try {
-            if (typeof window === "undefined" || !localStorage) return;
-            localStorage.setItem(name, JSON.stringify(value));
+            if (typeof window === "undefined" || !sessionStorage) return;
+            sessionStorage.setItem(name, JSON.stringify(value));
           } catch {
-            // If localStorage fails, continue without error
-            console.warn("Failed to save auth state to localStorage");
+            // If sessionStorage fails, continue without error
+            console.warn("Failed to save auth state to sessionStorage");
           }
         },
         removeItem: (name) => {
           try {
-            if (typeof window === "undefined" || !localStorage) return;
-            localStorage.removeItem(name);
+            if (typeof window === "undefined" || !sessionStorage) return;
+            sessionStorage.removeItem(name);
           } catch {
-            // If localStorage fails, continue without error
-            console.warn("Failed to remove auth state from localStorage");
+            // If sessionStorage fails, continue without error
+            console.warn("Failed to remove auth state from sessionStorage");
           }
         },
       },

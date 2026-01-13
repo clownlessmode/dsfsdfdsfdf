@@ -44,8 +44,8 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
       storage: {
         getItem: (name) => {
           try {
-            if (typeof window === "undefined" || !localStorage) return null;
-            const item = localStorage.getItem(name);
+            if (typeof window === "undefined" || !sessionStorage) return null;
+            const item = sessionStorage.getItem(name);
             return item ? JSON.parse(item) : null;
           } catch {
             return null;
@@ -53,20 +53,20 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
         },
         setItem: (name, value) => {
           try {
-            if (typeof window === "undefined" || !localStorage) return;
-            localStorage.setItem(name, JSON.stringify(value));
+            if (typeof window === "undefined" || !sessionStorage) return;
+            sessionStorage.setItem(name, JSON.stringify(value));
           } catch {
-            // If localStorage fails, continue without error
-            console.warn("Failed to save session to localStorage");
+            // If sessionStorage fails, continue without error
+            console.warn("Failed to save session to sessionStorage");
           }
         },
         removeItem: (name) => {
           try {
-            if (typeof window === "undefined" || !localStorage) return;
-            localStorage.removeItem(name);
+            if (typeof window === "undefined" || !sessionStorage) return;
+            sessionStorage.removeItem(name);
           } catch {
-            // If localStorage fails, continue without error
-            console.warn("Failed to remove session from localStorage");
+            // If sessionStorage fails, continue without error
+            console.warn("Failed to remove session from sessionStorage");
           }
         },
       },
