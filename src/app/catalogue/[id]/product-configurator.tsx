@@ -122,7 +122,6 @@ export const ProductConfigurator = ({ product }: Props) => {
       )}
       <div className="flex flex-col items-center">
         <NextImage
-          loading="eager"
           priority={true}
           alt={product.name || "product"}
           className="aspect-square w-full object-cover"
@@ -168,7 +167,7 @@ export const ProductConfigurator = ({ product }: Props) => {
         />
       </div>
       <div className="flex flex-row items-center justify-between w-full">
-        <Link href={`/catalogue#${product.id}`}>
+        <Link href={`/catalogue#${product.id}`} prefetch={true}>
           <Button className="aspect-square" size={"lg"} variant={"ghost"}>
             <ChevronLeft className="size-[72px] -ml-2" />
           </Button>

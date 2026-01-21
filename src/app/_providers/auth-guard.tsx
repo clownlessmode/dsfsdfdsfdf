@@ -75,7 +75,7 @@ export function TerminalAuthGuard({ children }: Props) {
     if (authorized && idStore && pathname === "/init") {
       router.replace("/");
     }
-  }, [authorized, idStore, pathname, router, authHydrated, sessionHydrated]);
+  }, [authorized, idStore, pathname, router, authHydrated, sessionHydrated, isCheckingSession]);
 
   // Optionally could show nothing until hydration to prevent UI flash
   if (!authHydrated || !sessionHydrated) return null;

@@ -7,6 +7,13 @@ type SessionHydration = {
   setHasHydrated: (v: boolean) => void;
 };
 
+const setCookie = (name: string, value: string, days = 1) => {
+  if (typeof document === 'undefined') return;
+
+  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; Secure; SameSite=Lax`;
+};
+
 const useSessionStore = create<SessionStore & SessionHydration>()(
   persist<SessionStore & SessionHydration>(
     (set, get) => ({
@@ -55,6 +62,10 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
           try {
             if (typeof window === "undefined" || !sessionStorage) return;
             sessionStorage.setItem(name, JSON.stringify(value));
+            const idStore = value.state?.session?.idStore;
+            if (idStore != null) {
+              setCookie("foodcort_store_id", String(idStore), 1);
+            }
           } catch {
             // If sessionStorage fails, continue without error
             console.warn("Failed to save session to sessionStorage");
@@ -64,6 +75,7 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
           try {
             if (typeof window === "undefined" || !sessionStorage) return;
             sessionStorage.removeItem(name);
+            document.cookie = "foodcort_store_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
           } catch {
             // If sessionStorage fails, continue without error
             console.warn("Failed to remove session from sessionStorage");

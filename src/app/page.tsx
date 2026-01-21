@@ -6,11 +6,12 @@ import { Logotype } from "@shared/ui/logotype";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "@entities/session";
 
-const getAdvertisements = async () => {
+const getAdvertisements = async (idStore: number) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/banner-main`,
+      `${process.env.NEXT_PUBLIC_API_URL}/banner-main/get-all-bunners-per-store/${idStore}`,
       { credentials: "include", next: { tags: ["advertisements"] } }
     );
     const data = await response.json();
@@ -24,12 +25,16 @@ const getAdvertisements = async () => {
 
 const SplashPage = () => {
   const router = useRouter();
+  const { session } = useSession()
+  const idStore = session?.idStore;
   const [advertisements, setAdvertisements] = useState({ data: [] });
 
   useEffect(() => {
     sessionStorage.setItem("foodcort-has-visited", "true");
-    getAdvertisements().then(setAdvertisements);
-  }, [router]);
+    if (idStore) {
+      getAdvertisements(idStore).then(setAdvertisements);
+    }
+  }, [router, idStore]);
 
   return (
     <Link href={"/catalogue"} className="w-screen h-screen flex relative">
