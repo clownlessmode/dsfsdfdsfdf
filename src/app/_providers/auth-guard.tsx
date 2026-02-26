@@ -49,11 +49,11 @@ export function TerminalAuthGuard({ children }: Props) {
       return;
     }
 
-    // If authorized but missing idStore, try to recover from sessionStorage
+    // If authorized but missing idStore, try to recover from localStorage
     if (authorized && !idStore && pathname !== "/init" && !isCheckingSession) {
-      // Check if we have session data in sessionStorage that might not have hydrated yet
-      if (typeof window !== "undefined" && sessionStorage) {
-        const storedSession = sessionStorage.getItem("session");
+      // Check if we have session data in localStorage that might not have hydrated yet
+      if (typeof window !== "undefined" && localStorage) {
+        const storedSession = localStorage.getItem("session");
         if (storedSession) {
           try {
             const parsed = JSON.parse(storedSession);

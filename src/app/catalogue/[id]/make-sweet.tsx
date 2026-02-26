@@ -165,7 +165,7 @@ export const MakeSweet = ({
                         loading="eager"
                         priority={true}
                         key={ingredient.id}
-                        src={ingredient.image}
+                        src={ingredient.image ?? ""}
                         alt={ingredient.name ?? ""}
                         className="w-[70px] aspect-square object-cover"
                         width={500}
@@ -253,7 +253,7 @@ export const MakeSweet = ({
                                 <NextImage
                                   loading="eager"
                                   priority={true}
-                                  src={ingredient.image}
+                                  src={ingredient.image ?? ""}
                                   alt={ingredient.name ?? ""}
                                   width={100}
                                   height={100}

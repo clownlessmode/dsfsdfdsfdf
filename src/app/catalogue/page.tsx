@@ -14,7 +14,7 @@ async function getCategories(): Promise<ICategory[]> {
   }
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`, {
     credentials: "include",
-    next: { revalidate: 3600, tags: ["catalogue", "categories"] },
+    next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
   });
   if (!res.ok) return [];
   const json = (await res.json()) as ICategoryResponse;
@@ -29,7 +29,7 @@ async function getProducts(): Promise<IProduct[]> {
   }
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`, {
     credentials: "include",
-    next: { revalidate: 3600, tags: ["catalogue", "products"] },
+    next: { revalidate: revalidate, tags: ["catalogue", "products"] },
   });
   if (!res.ok) return [];
   const json = (await res.json()) as unknown as

@@ -51,8 +51,8 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
       storage: {
         getItem: (name) => {
           try {
-            if (typeof window === "undefined" || !sessionStorage) return null;
-            const item = sessionStorage.getItem(name);
+            if (typeof window === "undefined" || !localStorage) return null;
+            const item = localStorage.getItem(name);
             return item ? JSON.parse(item) : null;
           } catch {
             return null;
@@ -60,31 +60,37 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
         },
         setItem: (name, value) => {
           try {
-            if (typeof window === "undefined" || !sessionStorage) return;
-            sessionStorage.setItem(name, JSON.stringify(value));
+            if (typeof window === "undefined" || !localStorage) return;
+            localStorage.setItem(name, JSON.stringify(value));
             const idStore = value.state?.session?.idStore;
             if (idStore != null) {
-              setCookie("foodcort_store_id", String(idStore), 1);
+              setCookie("foodcort_store_id", String(idStore), 365);
             }
           } catch {
-            // If sessionStorage fails, continue without error
-            console.warn("Failed to save session to sessionStorage");
+            // If localStorage fails, continue without error
+            console.warn("Failed to save session to localStorage");
           }
         },
         removeItem: (name) => {
           try {
-            if (typeof window === "undefined" || !sessionStorage) return;
-            sessionStorage.removeItem(name);
+            if (typeof window === "undefined" || !localStorage) return;
+            localStorage.removeItem(name);
             document.cookie = "foodcort_store_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
           } catch {
-            // If sessionStorage fails, continue without error
-            console.warn("Failed to remove session from sessionStorage");
+            // If localStorage fails, continue without error
+            console.warn("Failed to remove session from localStorage");
           }
         },
       },
       onRehydrateStorage: () => {
         return (state) => {
           state?.setHasHydrated?.(true);
+
+          // если в восстановленной сессии есть idStore – восстанавливаем куку
+          const idStore = state?.session?.idStore;
+          if (idStore != null) {
+            setCookie("foodcort_store_id", String(idStore), 365);
+          }
         };
       },
     }

@@ -27,6 +27,7 @@ export interface CreateOrderResponse {
   success: boolean;
   orderId?: string;
   message?: string;
+  dailyId?: string;
 }
 
 /**
@@ -53,6 +54,7 @@ export const createOrder = async (
     return {
       success: true,
       orderId: data.orderId,
+      dailyId: data.dailyId,
       message: "Заказ успешно создан",
     };
   } catch (error) {

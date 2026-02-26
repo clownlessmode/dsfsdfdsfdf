@@ -2,7 +2,6 @@
 
 import { AdvertisementFullscreen } from "@entities/advertisement/ui/advertisement-fullscreen";
 import CtaButton from "@shared/ui/cta-button";
-import { Logotype } from "@shared/ui/logotype";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -30,7 +29,7 @@ const SplashPage = () => {
   const [advertisements, setAdvertisements] = useState({ data: [] });
 
   useEffect(() => {
-    sessionStorage.setItem("foodcort-has-visited", "true");
+    localStorage.setItem("foodcort-has-visited", "true");
     if (idStore) {
       getAdvertisements(idStore).then(setAdvertisements);
     }
@@ -40,7 +39,6 @@ const SplashPage = () => {
     <Link href={"/catalogue"} className="w-screen h-screen flex relative">
       <div className="bg-gradient-to-b from-white/0 to-white absolute inset-0 top-1/2 z-10" />
       <AdvertisementFullscreen advertisements={advertisements.data} />
-      <Logotype className="absolute top-10 left-10" />
       <p className="text-black opacity-50 text-5xl font-medium absolute bottom-[385px] text-center left-1/2 -translate-x-1/2 z-20">
         нажмите на кнопку, чтобы сделать заказ
       </p>

@@ -58,9 +58,13 @@ export const InitialWalkthroughProvider: React.FC<
     originalPathRef.current = pathname ?? "/";
 
     const fetchCategories = async (): Promise<CategoryGroup[]> => {
+      if (!idStore) {
+        return [];
+      }
+      
       try {
         const response = await fetch(
-          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/groups`),
+          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`),
           {
             credentials: "include",
             cache: "no-store",
@@ -84,9 +88,13 @@ export const InitialWalkthroughProvider: React.FC<
     };
 
     const fetchProducts = async (): Promise<Product[]> => {
+      if (!idStore) {
+        return [];
+      }
+
       try {
         const response = await fetch(
-          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/product-main`),
+          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`),
           {
             credentials: "include",
             cache: "no-store",
@@ -124,7 +132,7 @@ export const InitialWalkthroughProvider: React.FC<
     const run = async () => {
       const isDevLogin = (() => {
         try {
-          return sessionStorage.getItem("foodcort_dev_login") === "1";
+          return localStorage.getItem("foodcort_dev_login") === "1";
         } catch {
           return false;
         }
@@ -132,7 +140,7 @@ export const InitialWalkthroughProvider: React.FC<
       setIsActive(true);
       // Устанавливаем флаг прогрева в sessionStorage для предотвращения редиректов
       try {
-        sessionStorage.setItem("foodcort_walkthrough_running", "true");
+        localStorage.setItem("foodcort_walkthrough_running", "true");
       } catch {}
 
       // Устанавливаем начальное значение totalSteps для корректного отображения
@@ -146,7 +154,7 @@ export const InitialWalkthroughProvider: React.FC<
         setCurrentIndex(++stepIndex);
         await clearBrowserCache({
           // Сохраняем dev-флаг, чтобы ускорять прогрев на dev-входе
-          keepLocalStorageKeys: ["foodcort_dev_login"],
+          keepLocalStorageKeys: ["foodcort_dev_login", "session"],
         });
         await delay(1000);
 
@@ -247,7 +255,7 @@ export const InitialWalkthroughProvider: React.FC<
         setIsActive(false);
         // Убираем флаг прогрева из sessionStorage
         try {
-          sessionStorage.removeItem("foodcort_walkthrough_running");
+          localStorage.removeItem("foodcort_walkthrough_running");
         } catch {}
       }
     };

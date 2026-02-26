@@ -125,7 +125,7 @@ export const ProductConfigurator = ({ product }: Props) => {
           priority={true}
           alt={product.name || "product"}
           className="aspect-square w-full object-cover"
-          src={product.image ?? null}
+          src={product.image ?? ""}
           width={1080}
           height={1080}
         />

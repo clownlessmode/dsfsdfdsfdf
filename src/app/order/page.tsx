@@ -18,6 +18,7 @@ const OrderContent = () => {
   const [qrCodeDataUrl, setQrCodeDataUrl] = React.useState<string>("");
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const dailyId = searchParams.get("dailyId");
   const handleNewOrder = React.useCallback(() => {
     clearCart();
     clearUserData(); // Очищаем только пользовательские данные, сохраняя idStore
@@ -29,12 +30,7 @@ const OrderContent = () => {
     clearUserData(); // Очищаем только пользовательские данные, сохраняя idStore
     router.push("/"); // Перекидываем на главную при истечении таймера
   }, [clearCart, clearUserData, router]);
-  const formatOrderId = (id: string | number | null | undefined) => {
-    if (id === null || id === undefined) return "";
-    const lastThree = id.toString().slice(-3);
-    const trimmed = lastThree.replace(/^0+/, "");
-    return trimmed || "0";
-  };
+
   // Таймер на 60 секунд
   React.useEffect(() => {
     const timer = setInterval(() => {
@@ -164,7 +160,7 @@ const OrderContent = () => {
           transition: { duration: 0.2 },
         }}
       >
-        {orderId ? formatOrderId(orderId) : ""}
+        {dailyId || ""}
       </motion.h1>
 
       {/* Карточка с инструкцией */}

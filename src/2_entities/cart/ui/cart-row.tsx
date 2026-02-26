@@ -12,7 +12,7 @@ export const CartRow = () => {
           loading="eager"
           priority={true}
           key={item.product.id}
-          src={item.product.image ?? null}
+          src={item.product.image ?? ""}
           alt={item.product.name}
           className="rounded-[10px] w-[100px] aspect-square object-cover"
           width={500}

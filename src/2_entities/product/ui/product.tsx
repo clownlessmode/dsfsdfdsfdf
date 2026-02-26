@@ -25,7 +25,7 @@ export const Product = ({ product }: IProps) => {
           <Image
             loading="eager"
             priority={true}
-            src={product.image ?? null}
+            src={product.image ?? ""}
             alt={product.name}
             className=" items-center justify-center flex w-full aspect-square object-cover "
             width={500}
@@ -82,7 +82,7 @@ export const Product = ({ product }: IProps) => {
             <Image
               loading="eager"
               priority={true}
-              src={product.image ?? null}
+              src={product.image ?? ""}
               alt={product.name}
               className=" items-center justify-center flex w-[260px] aspect-square object-cover "
               width={500}
