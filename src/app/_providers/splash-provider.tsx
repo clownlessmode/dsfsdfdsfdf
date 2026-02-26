@@ -22,10 +22,9 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const IDLE_TIMEOUT_MS = 2 * 60 * 1000; // 2 minutes
   const lastActivityRef = useRef<number>(Date.now());
-  const [, setNow] = useState<number>(Date.now());
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const disabled = pathname === "/";
+  const disabled = pathname === "/" || pathname === "/init";
 
   const resetIdleTimer = useCallback(() => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -60,12 +59,6 @@ export const SplashProvider: FC<PropsWithChildren> = ({ children }) => {
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
   }, [resetIdleTimer, disabled]);
-
-  // ticker to update visible idle time every second
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleStay = () => {
     setIsIdleDialogOpen(false);

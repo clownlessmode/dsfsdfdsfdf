@@ -102,7 +102,7 @@ const CartPage = () => {
       });
 
       if (result.success) {
-        router.push(`/order?orderId=${result.orderId}`);
+        router.push(`/order?orderId=${result.orderId}&dailyId=${result.dailyId}`);
         await new Promise((resolve) => setTimeout(resolve, 1000));
         console.log(result);
         clearCart();
@@ -256,7 +256,7 @@ export const CartProductRow = ({ item }: { item: CartItem }) => {
         <Image
           loading="eager"
           priority={true}
-          src={item.product.image}
+          src={item.product.image ?? ""}
           alt={item.product.name}
           width={500}
           height={500}

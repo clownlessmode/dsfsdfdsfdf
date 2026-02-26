@@ -22,7 +22,7 @@ export const Ingredient = ({
         <Image
           loading="eager"
           priority={true}
-          src={ingredient.image ?? null}
+          src={ingredient.image ?? ""}
           alt={ingredient.name ?? ""}
           width={100}
           className="rounded-[50px] w-full h-[300px] object-cover"

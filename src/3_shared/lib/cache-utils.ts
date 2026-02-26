@@ -23,7 +23,7 @@ export const clearBrowserCache = async (options?: {
     await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
   }
 
-  // Очистка localStorage и sessionStorage, с возможностью сохранить некоторые ключи
+  // Очистка localStorage  с возможностью сохранить некоторые ключи
   try {
     const keep = new Set(options?.keepLocalStorageKeys ?? []);
     const preserved: Record<string, string> = {};
@@ -38,22 +38,11 @@ export const clearBrowserCache = async (options?: {
     }
 
     localStorage.clear();
-    sessionStorage.clear();
 
     // Восстанавливаем сохранённые ключи
     Object.entries(preserved).forEach(([k, v]) => localStorage.setItem(k, v));
   } catch (e) {
     console.warn("Could not clear storage:", e);
-  }
-
-  // Очистка IndexedDB (если используется)
-  if ("indexedDB" in window) {
-    try {
-      // Здесь можно добавить очистку IndexedDB если необходимо
-      console.log("IndexedDB cleanup would go here");
-    } catch (e) {
-      console.warn("Could not clear IndexedDB:", e);
-    }
   }
 };
 

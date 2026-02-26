@@ -7,6 +7,13 @@ type SessionHydration = {
   setHasHydrated: (v: boolean) => void;
 };
 
+const setCookie = (name: string, value: string, days = 1) => {
+  if (typeof document === 'undefined') return;
+
+  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; Secure; SameSite=Lax`;
+};
+
 const useSessionStore = create<SessionStore & SessionHydration>()(
   persist<SessionStore & SessionHydration>(
     (set, get) => ({
@@ -55,6 +62,10 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
           try {
             if (typeof window === "undefined" || !localStorage) return;
             localStorage.setItem(name, JSON.stringify(value));
+            const idStore = value.state?.session?.idStore;
+            if (idStore != null) {
+              setCookie("foodcort_store_id", String(idStore), 365);
+            }
           } catch {
             // If localStorage fails, continue without error
             console.warn("Failed to save session to localStorage");
@@ -64,6 +75,7 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
           try {
             if (typeof window === "undefined" || !localStorage) return;
             localStorage.removeItem(name);
+            document.cookie = "foodcort_store_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
           } catch {
             // If localStorage fails, continue without error
             console.warn("Failed to remove session from localStorage");
@@ -73,6 +85,12 @@ const useSessionStore = create<SessionStore & SessionHydration>()(
       onRehydrateStorage: () => {
         return (state) => {
           state?.setHasHydrated?.(true);
+
+          // если в восстановленной сессии есть idStore – восстанавливаем куку
+          const idStore = state?.session?.idStore;
+          if (idStore != null) {
+            setCookie("foodcort_store_id", String(idStore), 365);
+          }
         };
       },
     }
