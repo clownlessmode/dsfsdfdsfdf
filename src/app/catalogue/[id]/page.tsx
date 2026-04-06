@@ -2,22 +2,20 @@ import { ProductConfigurator } from "./product-configurator";
 import { cookies } from "next/headers";
 
 // Cache product pages for 5 minutes to avoid excessive API requests
-export const revalidate = 0;
-const API_BASE_URL =
-  process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
+export const revalidate = 300;
 
 async function getProduct(id: number) {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
 
-  if (!idStore || !API_BASE_URL) {
-    console.warn("Store ID cookie or API base URL is missing");
+  if (!idStore) {
+    console.warn("Store ID not found in cookies");
     return null;
   }
 
   try {
     const response = await fetch(
-      `${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}/${id}`,
       {
         next: { revalidate },
         credentials: "include",
