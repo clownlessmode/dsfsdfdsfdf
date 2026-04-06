@@ -4,7 +4,7 @@ import type { IProduct } from "@entities/product";
 import type { ICategory, ICategoryResponse } from "@entities/category";
 import { cookies } from "next/headers";
 
-export const revalidate = 3600;
+export const revalidate = 0;
 
 async function getCategories(): Promise<ICategory[]> {
   const cookieStore = await cookies();
@@ -16,9 +16,7 @@ async function getCategories(): Promise<ICategory[]> {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
   });
-  if (!res.ok) {
-    throw new Error(`Ошибка API: ${res.status}`);
-  }
+  if (!res.ok) return [];
   const json = (await res.json()) as ICategoryResponse;
   return json?.data ?? [];
 }
@@ -33,11 +31,7 @@ async function getProducts(): Promise<IProduct[]> {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "products"] },
   });
-
-  if (!res.ok) {
-    throw new Error(`Ошибка API: ${res.status}`);
-  }
-
+  if (!res.ok) return [];
   const json = (await res.json()) as unknown as
     | IProduct[]
     | { data?: IProduct[] };

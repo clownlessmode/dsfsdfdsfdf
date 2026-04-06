@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 export const dynamic = "force-dynamic";
 
 // Cache product pages for 5 minutes to avoid excessive API requests
-export const revalidate = 300;
+export const revalidate = 0;
 
 async function getProduct(id: number) {
   const cookieStore = await cookies();
