@@ -4,6 +4,7 @@ import type { IProduct } from "@entities/product";
 import type { ICategory, ICategoryResponse } from "@entities/category";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 3600;
 
 async function getCategories(): Promise<ICategory[]> {
