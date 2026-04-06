@@ -4,6 +4,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  addCacheBuster,
   clearBrowserCache,
   preloadImages,
 } from "@shared/lib/cache-utils";
@@ -63,7 +64,7 @@ export const InitialWalkthroughProvider: React.FC<
       
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`,
+          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`),
           {
             credentials: "include",
             cache: "no-store",
@@ -93,7 +94,7 @@ export const InitialWalkthroughProvider: React.FC<
 
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`,
+          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`),
           {
             credentials: "include",
             cache: "no-store",
