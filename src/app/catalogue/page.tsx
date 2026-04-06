@@ -4,8 +4,6 @@ import type { IProduct } from "@entities/product";
 import type { ICategory, ICategoryResponse } from "@entities/category";
 import { cookies } from "next/headers";
 
-export const dynamic = "force-dynamic";
-
 export const revalidate = 3600;
 
 async function getCategories(): Promise<ICategory[]> {
@@ -14,13 +12,21 @@ async function getCategories(): Promise<ICategory[]> {
   if (!idStore) {
     return [];
   }
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`, {
-    credentials: "include",
-    next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
-  });
-  if (!res.ok) return [];
-  const json = (await res.json()) as ICategoryResponse;
-  return json?.data ?? [];
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`,
+      {
+        credentials: "include",
+        next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
+      },
+    );
+    if (!res.ok) return [];
+    const json = (await res.json()) as ICategoryResponse;
+    return json?.data ?? [];
+  } catch (error) {
+    console.error("Ошибка при загрузке категорий:", error);
+    return [];
+  }
 }
 
 async function getProducts(): Promise<IProduct[]> {
@@ -29,15 +35,23 @@ async function getProducts(): Promise<IProduct[]> {
   if (!idStore) {
     return [];
   }
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`, {
-    credentials: "include",
-    next: { revalidate: revalidate, tags: ["catalogue", "products"] },
-  });
+  try {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`,
+    {
+      credentials: "include",
+      next: { revalidate: revalidate, tags: ["catalogue", "products"] },
+    },
+  );
   if (!res.ok) return [];
   const json = (await res.json()) as unknown as
     | IProduct[]
-    | { data?: IProduct[] };
-  return Array.isArray(json) ? json : json?.data ?? [];
+      | { data?: IProduct[] };
+    return Array.isArray(json) ? json : (json?.data ?? []);
+  } catch (error) {
+    console.error("Ошибка при загрузке продуктов:", error);
+    return [];
+  }
 }
 
 const CataloguePage = async () => {
