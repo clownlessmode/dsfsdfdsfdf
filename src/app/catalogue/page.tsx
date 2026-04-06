@@ -4,15 +4,17 @@ import type { IProduct } from "@entities/product";
 import type { ICategory, ICategoryResponse } from "@entities/category";
 import { cookies } from "next/headers";
 
-export const revalidate = 3600;
+export const revalidate = 0;
+const API_BASE_URL =
+  process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
 
 async function getCategories(): Promise<ICategory[]> {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
-  if (!idStore) {
+  if (!idStore || !API_BASE_URL) {
     return [];
   }
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`, {
+  const res = await fetch(`${API_BASE_URL}/groups/get-all-group-per-store/${idStore}`, {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
   });
@@ -24,10 +26,10 @@ async function getCategories(): Promise<ICategory[]> {
 async function getProducts(): Promise<IProduct[]> {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
-  if (!idStore) {
+  if (!idStore || !API_BASE_URL) {
     return [];
   }
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`, {
+  const res = await fetch(`${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}`, {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "products"] },
   });
