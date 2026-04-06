@@ -3,12 +3,11 @@
  */
 
 /**
- * Добавляет cache-busting параметры к URL
+ * addCacheBuster intentionally disabled.
+ * Returns the original URL without cache-busting params.
  */
 export const addCacheBuster = (url: string): string => {
-  const timestamp = Date.now();
-  const separator = url.includes("?") ? "&" : "?";
-  return `${url}${separator}_cb=${timestamp}&_force_reload=true`;
+  return url;
 };
 
 /**
