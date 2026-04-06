@@ -64,7 +64,10 @@ export const InitialWalkthroughProvider: React.FC<
       
       try {
         const response = await fetch(
-          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`),
+          addCacheBuster(
+            `${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`,
+            idStore
+          ),
           {
             credentials: "include",
             cache: "no-store",
@@ -94,7 +97,10 @@ export const InitialWalkthroughProvider: React.FC<
 
       try {
         const response = await fetch(
-          addCacheBuster(`${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`),
+          addCacheBuster(
+            `${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`,
+            idStore
+          ),
           {
             credentials: "include",
             cache: "no-store",
