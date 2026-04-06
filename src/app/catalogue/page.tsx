@@ -14,13 +14,26 @@ async function getCategories(): Promise<ICategory[]> {
   if (!idStore || !API_BASE_URL) {
     return [];
   }
-  const res = await fetch(`${API_BASE_URL}/groups/get-all-group-per-store/${idStore}`, {
-    credentials: "include",
-    next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
-  });
-  if (!res.ok) return [];
-  const json = (await res.json()) as ICategoryResponse;
-  return json?.data ?? [];
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/groups/get-all-group-per-store/${idStore}`,
+      {
+        credentials: "include",
+        next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
+      }
+    );
+
+    if (!res.ok || res.status === 204) return [];
+
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) return [];
+
+    const json = (await res.json()) as ICategoryResponse;
+    return Array.isArray(json?.data) ? json.data : [];
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+    return [];
+  }
 }
 
 async function getProducts(): Promise<IProduct[]> {
@@ -29,15 +42,29 @@ async function getProducts(): Promise<IProduct[]> {
   if (!idStore || !API_BASE_URL) {
     return [];
   }
-  const res = await fetch(`${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}`, {
-    credentials: "include",
-    next: { revalidate: revalidate, tags: ["catalogue", "products"] },
-  });
-  if (!res.ok) return [];
-  const json = (await res.json()) as unknown as
-    | IProduct[]
-    | { data?: IProduct[] };
-  return Array.isArray(json) ? json : json?.data ?? [];
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}`,
+      {
+        credentials: "include",
+        next: { revalidate: revalidate, tags: ["catalogue", "products"] },
+      }
+    );
+
+    if (!res.ok || res.status === 204) return [];
+
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) return [];
+
+    const json = (await res.json()) as unknown as
+      | IProduct[]
+      | { data?: IProduct[] };
+    const list = Array.isArray(json) ? json : json?.data;
+    return Array.isArray(list) ? list : [];
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    return [];
+  }
 }
 
 const CataloguePage = async () => {
