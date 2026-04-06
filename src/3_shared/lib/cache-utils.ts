@@ -3,12 +3,16 @@
  */
 
 /**
- * Добавляет cache-busting параметры к URL
+ * Добавляет параметры к URL: магазин (_store) и метка времени (_cb) для cache-bust.
  */
-export const addCacheBuster = (url: string): string => {
-  const timestamp = Date.now();
+export const addCacheBuster = (url: string, storeId?: string | number): string => {
   const separator = url.includes("?") ? "&" : "?";
-  return `${url}${separator}_cb=${timestamp}&_force_reload=true`;
+  const sid =
+    storeId != null && String(storeId).trim() !== ""
+      ? encodeURIComponent(String(storeId))
+      : "default";
+  const ts = Date.now();
+  return `${url}${separator}_store=${sid}&_cb=${ts}&_force_reload=true`;
 };
 
 /**
@@ -73,9 +77,10 @@ export const preloadImages = async (imageUrls: string[]): Promise<void> => {
  */
 export const createForceReloadFetch = (
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  storeId?: string | number
 ): Promise<Response> => {
-  const cacheBustedUrl = addCacheBuster(url);
+  const cacheBustedUrl = addCacheBuster(url, storeId);
 
   return fetch(cacheBustedUrl, {
     ...options,
