@@ -120,7 +120,7 @@ export const ProductConfigurator = ({ product }: Props) => {
           onAddToCart={handleAddToCart}
         />
       )}
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center w-full min-h-0">
         <NextImage
           priority={true}
           alt={product.name || "product"}
