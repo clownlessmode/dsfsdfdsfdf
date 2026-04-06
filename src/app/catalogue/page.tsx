@@ -15,9 +15,8 @@ async function getCategories(): Promise<ICategory[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`, {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
-    signal: AbortSignal.timeout(5000),
   });
-  if (!res.ok) throw new Error(`API Error: ${res.status}`);
+  if (!res.ok) return [];
   const json = (await res.json()) as ICategoryResponse;
   return json?.data ?? [];
 }
@@ -31,9 +30,8 @@ async function getProducts(): Promise<IProduct[]> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`, {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "products"] },
-    signal: AbortSignal.timeout(5000),
   });
-  if (!res.ok) throw new Error(`API Error: ${res.status}`);
+  if (!res.ok) return [];
   const json = (await res.json()) as unknown as
     | IProduct[]
     | { data?: IProduct[] };
