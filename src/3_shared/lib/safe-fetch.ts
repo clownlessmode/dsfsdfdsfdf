@@ -81,9 +81,9 @@ export async function safeFetchJson<T = any>(
 }
 
 /**
- * Добавляет timestamp к URL для предотвращения кеширования
+ * addCacheBuster intentionally disabled.
+ * Returns the original URL without cache-busting params.
  */
 export function addCacheBuster(url: string): string {
-  const separator = url.includes("?") ? "&" : "?";
-  return `${url}${separator}_cb=${Date.now()}&_force_reload=true`;
+  return url;
 }
