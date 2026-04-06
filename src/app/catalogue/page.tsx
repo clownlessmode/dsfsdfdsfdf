@@ -18,27 +18,23 @@ async function getCategories(): Promise<ICategory[]> {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`,
-      {
-        headers: {
-          Cookie: cookieHeader,
-        },
-        next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/groups/get-all-group-per-store/${idStore}`,
+    {
+      headers: {
+        Cookie: cookieHeader,
       },
-    );
-    if (!res.ok) {
-      console.error(`API вернул ошибку: ${res.status} ${res.statusText}`);
-      return [];
-    }
+      next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
+    },
+  );
 
-    const json = (await res.json()) as ICategoryResponse;
-    return json?.data ?? [];
-  } catch (error) {
-    console.error("Ошибка при загрузке категорий:", error);
+  if (!res.ok) {
+    console.error(`API вернул ошибку: ${res.status} ${res.statusText}`);
     return [];
   }
+
+  const json = (await res.json()) as ICategoryResponse;
+  return json?.data ?? [];
 }
 
 async function getProducts(): Promise<IProduct[]> {
@@ -48,31 +44,30 @@ async function getProducts(): Promise<IProduct[]> {
     return [];
   }
 
-  const cookieHeader = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join('; ');
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`,
-      {
-        headers: {
-          Cookie: cookieHeader,
-        },
-        next: { revalidate: revalidate, tags: ["catalogue", "products"] },
-      },
-    );
-    
-    if (!res.ok) {
-      console.error(`API вернул ошибку: ${res.status} ${res.statusText}`);
-      return [];
-    }
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
 
-    const json = (await res.json()) as unknown as
-      | IProduct[]
-      | { data?: IProduct[] };
-    return Array.isArray(json) ? json : (json?.data ?? []);
-  } catch (error) {
-    console.error("Ошибка при загрузке продуктов:", error);
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}`,
+    {
+      headers: {
+        Cookie: cookieHeader,
+      },
+      next: { revalidate: revalidate, tags: ["catalogue", "products"] },
+    },
+  );
+
+  if (!res.ok) {
+    console.error(`API вернул ошибку: ${res.status} ${res.statusText}`);
     return [];
   }
+
+  const json = (await res.json()) as unknown as
+    | IProduct[]
+    | { data?: IProduct[] };
+  return Array.isArray(json) ? json : (json?.data ?? []);
 }
 
 const CataloguePage = async () => {
