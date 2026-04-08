@@ -8,18 +8,19 @@ export const revalidate = 3600;
 
 const API_BASE_URL =
   process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
+  const API_BASE_URL_NORMALIZED = API_BASE_URL?.replace(/\/+$/, "");
 
 async function getCategories(): Promise<ICategory[]> {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
-  if (!idStore || !API_BASE_URL) {
+  if (!idStore || !API_BASE_URL_NORMALIZED) {
     console.warn("[catalogue:getCategories] Missing context", {
       hasIdStore: Boolean(idStore),
-      hasApiBaseUrl: Boolean(API_BASE_URL),
+      hasApiBaseUrl: Boolean(API_BASE_URL_NORMALIZED),
     });
     return [];
   }
-  const url = `${API_BASE_URL}/groups/get-all-group-per-store/${idStore}`;
+  const url = `${API_BASE_URL_NORMALIZED}/groups/get-all-group-per-store/${idStore}`;
   const res = await fetch(url, {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
@@ -42,14 +43,14 @@ async function getCategories(): Promise<ICategory[]> {
 async function getProducts(): Promise<IProduct[]> {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
-  if (!idStore || !API_BASE_URL) {
+  if (!idStore || !API_BASE_URL_NORMALIZED) {
     console.warn("[catalogue:getProducts] Missing context", {
       hasIdStore: Boolean(idStore),
-      hasApiBaseUrl: Boolean(API_BASE_URL),
+      hasApiBaseUrl: Boolean(API_BASE_URL_NORMALIZED),
     });
     return [];
   }
-  const url = `${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}`;
+  const url = `${API_BASE_URL_NORMALIZED}/product-main/find-all-product-per-store/${idStore}`;
   const res = await fetch(url, {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "products"] },
