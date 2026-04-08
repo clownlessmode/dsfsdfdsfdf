@@ -6,23 +6,22 @@ export const revalidate = 300;
 
 const API_BASE_URL =
   process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
-const API_BASE_URL_NORMALIZED = API_BASE_URL?.replace(/\/+$/, "");
 
 async function getProduct(id: number) {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
 
-  if (!idStore || !API_BASE_URL_NORMALIZED) {
+  if (!idStore || !API_BASE_URL) {
     console.warn("[catalogue:id:getProduct] Missing context", {
       id,
       hasIdStore: Boolean(idStore),
-      hasApiBaseUrl: Boolean(API_BASE_URL_NORMALIZED),
+      hasApiBaseUrl: Boolean(API_BASE_URL),
     });
     return null;
   }
 
   try {
-    const url = `${API_BASE_URL_NORMALIZED}/product-main/find-all-product-per-store/${idStore}/${id}`;
+    const url = `${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}/${id}`;
     const response = await fetch(
       url,
       {
@@ -59,13 +58,6 @@ async function getProduct(id: number) {
     // Парсим JSON только если есть валидный контент
     const data = JSON.parse(text);
     const product = data.data || data;
-    console.log("[catalogue:id:getProduct] Success", {
-      id,
-      idStore,
-      hasProduct: Boolean(product),
-      productId: product?.id ?? null,
-      productName: product?.name ?? null,
-    });
 
     return product;
   } catch (error) {
