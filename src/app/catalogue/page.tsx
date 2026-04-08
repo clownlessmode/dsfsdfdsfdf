@@ -5,6 +5,7 @@ import type { ICategory, ICategoryResponse } from "@entities/category";
 import { cookies } from "next/headers";
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 const API_BASE_URL =
   process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
