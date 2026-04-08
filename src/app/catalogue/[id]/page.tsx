@@ -2,7 +2,8 @@ import { ProductConfigurator } from "./product-configurator";
 import { cookies } from "next/headers";
 
 // Cache product pages for 5 minutes to avoid excessive API requests
-export const revalidate = 0;
+export const revalidate = 300;
+
 const API_BASE_URL =
   process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
 
