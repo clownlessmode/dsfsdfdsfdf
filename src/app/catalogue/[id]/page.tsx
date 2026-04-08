@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 
 // Cache product pages for 5 minutes to avoid excessive API requests
 export const revalidate = 300;
-export const dynamic = "force-dynamic";
 
 const API_BASE_URL =
   process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
@@ -13,13 +12,18 @@ async function getProduct(id: number) {
   const idStore = cookieStore.get("foodcort_store_id")?.value;
 
   if (!idStore || !API_BASE_URL) {
-    console.warn("Store ID cookie or API base URL is missing");
+    console.warn("[catalogue:id:getProduct] Missing context", {
+      id,
+      hasIdStore: Boolean(idStore),
+      hasApiBaseUrl: Boolean(API_BASE_URL),
+    });
     return null;
   }
 
   try {
+    const url = `${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}/${id}`;
     const response = await fetch(
-      `${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}/${id}`,
+      url,
       {
         next: { revalidate },
         credentials: "include",
@@ -27,6 +31,15 @@ async function getProduct(id: number) {
     );
 
     if (!response.ok) {
+      const bodySnippet = (await response.text()).slice(0, 300);
+      console.error("[catalogue:id:getProduct] Non-OK response", {
+        id,
+        idStore,
+        url,
+        status: response.status,
+        statusText: response.statusText,
+        bodySnippet,
+      });
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -44,11 +57,22 @@ async function getProduct(id: number) {
 
     // Парсим JSON только если есть валидный контент
     const data = JSON.parse(text);
-    console.log(data);
+    const product = data.data || data;
+    console.log("[catalogue:id:getProduct] Success", {
+      id,
+      idStore,
+      hasProduct: Boolean(product),
+      productId: product?.id ?? null,
+      productName: product?.name ?? null,
+    });
 
-    return data.data || data;
+    return product;
   } catch (error) {
-    console.error(`Failed to fetch product ${id}:`, error);
+    console.error("[catalogue:id:getProduct] Request failed", {
+      id,
+      idStore,
+      error,
+    });
     return null;
   }
 }

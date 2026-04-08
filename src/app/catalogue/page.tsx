@@ -5,7 +5,6 @@ import type { ICategory, ICategoryResponse } from "@entities/category";
 import { cookies } from "next/headers";
 
 export const revalidate = 3600;
-export const dynamic = "force-dynamic";
 
 const API_BASE_URL =
   process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
@@ -14,14 +13,33 @@ async function getCategories(): Promise<ICategory[]> {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
   if (!idStore || !API_BASE_URL) {
+    console.warn("[catalogue:getCategories] Missing context", {
+      hasIdStore: Boolean(idStore),
+      hasApiBaseUrl: Boolean(API_BASE_URL),
+    });
     return [];
   }
-  const res = await fetch(`${API_BASE_URL}/groups/get-all-group-per-store/${idStore}`, {
+  const url = `${API_BASE_URL}/groups/get-all-group-per-store/${idStore}`;
+  const res = await fetch(url, {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "categories"] },
   });
-  if (!res.ok) return [];
+  if (!res.ok) {
+    const bodySnippet = (await res.text()).slice(0, 300);
+    console.error("[catalogue:getCategories] Non-OK response", {
+      url,
+      status: res.status,
+      statusText: res.statusText,
+      idStore,
+      bodySnippet,
+    });
+    return [];
+  }
   const json = (await res.json()) as ICategoryResponse;
+  console.log("[catalogue:getCategories] Success", {
+    idStore,
+    count: Array.isArray(json?.data) ? json.data.length : 0,
+  });
   return json?.data ?? [];
 }
 
@@ -29,17 +47,37 @@ async function getProducts(): Promise<IProduct[]> {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
   if (!idStore || !API_BASE_URL) {
+    console.warn("[catalogue:getProducts] Missing context", {
+      hasIdStore: Boolean(idStore),
+      hasApiBaseUrl: Boolean(API_BASE_URL),
+    });
     return [];
   }
-  const res = await fetch(`${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}`, {
+  const url = `${API_BASE_URL}/product-main/find-all-product-per-store/${idStore}`;
+  const res = await fetch(url, {
     credentials: "include",
     next: { revalidate: revalidate, tags: ["catalogue", "products"] },
   });
-  if (!res.ok) return [];
+  if (!res.ok) {
+    const bodySnippet = (await res.text()).slice(0, 300);
+    console.error("[catalogue:getProducts] Non-OK response", {
+      url,
+      status: res.status,
+      statusText: res.statusText,
+      idStore,
+      bodySnippet,
+    });
+    return [];
+  }
   const json = (await res.json()) as unknown as
     | IProduct[]
     | { data?: IProduct[] };
-  return Array.isArray(json) ? json : json?.data ?? [];
+  const products = Array.isArray(json) ? json : json?.data ?? [];
+  console.log("[catalogue:getProducts] Success", {
+    idStore,
+    count: products.length,
+  });
+  return products;
 }
 
 const CataloguePage = async () => {
