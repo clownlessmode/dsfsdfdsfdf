@@ -4,25 +4,21 @@ import { cookies } from "next/headers";
 // Cache product pages for 5 minutes to avoid excessive API requests
 export const revalidate = 300;
 
-const API_BASE_URL =
-  process.env.API_INTERNAL_URL ?? process.env.NEXT_PUBLIC_API_URL;
-  const API_BASE_URL_NORMALIZED = API_BASE_URL?.replace(/\/+$/, "");
-
 async function getProduct(id: number) {
   const cookieStore = await cookies();
   const idStore = cookieStore.get("foodcort_store_id")?.value;
 
-  if (!idStore || !API_BASE_URL_NORMALIZED) {
+  if (!idStore || !process.env.NEXT_PUBLIC_API_URL) {
     console.warn("[catalogue:id:getProduct] Missing context", {
       id,
       hasIdStore: Boolean(idStore),
-      hasApiBaseUrl: Boolean(API_BASE_URL_NORMALIZED),
+      hasApiBaseUrl: Boolean(process.env.NEXT_PUBLIC_API_URL),
     });
     return null;
   }
 
   try {
-    const url = `${API_BASE_URL_NORMALIZED}/product-main/find-all-product-per-store/${idStore}/${id}`;
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/product-main/find-all-product-per-store/${idStore}/${id}`;
     const response = await fetch(
       url,
       {
